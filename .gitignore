@@ -3,8 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-_data/**
-!_data/__init__.py
+z_outputs/**
+!z_outputs/__init__.py
 
 # C extensions
 *.so
