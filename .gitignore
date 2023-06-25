@@ -6,6 +6,23 @@ __pycache__/
 z_outputs/**
 !z_outputs/__init__.py
 
+.idea
+.idea/**
+.vscode
+.vscode/**
+
+# MatLab files
+*.asv
+
+# Logs
+*.log
+*.out
+
+# Lumerical files
+*.xml
+*.ich
+*.icp
+
 # C extensions
 *.so
 

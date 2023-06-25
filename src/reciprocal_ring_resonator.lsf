@@ -1,17 +1,12 @@
 if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == currentscriptname) {
     #?currentscriptname;
-        
+
     switchtodesign;
     groupscope("::Root Element");
     deleteall;
     clear;
     main__ = currentscriptname;
-    
-    lambda = 1550e-9;
-    gap = 100e-9;
-    pwr = 1e-3;    
-    rev_direction = false;
-    
+
     record_all = true;
     annotate_all = 3;
 }
@@ -109,8 +104,8 @@ if (record_all) {
         addelement("Optical Power Meter");
         set("name", "OPM_" + optical_analysers_ports{i});
     }
-    
-    
+
+
     # Adding Analyzers Connections
     connect("RO_LT", "port", "OOSC_RO_LT", "input");
     connect("RO_LT", "port", "OSA_RO_LT", "input");
@@ -301,7 +296,7 @@ if (record_all) {
     setnamed("OPM_OPS_L_B", "x position", getnamed("OPS_L", "x position") - 300);
     setnamed("OPM_OPS_L_B", "y position", getnamed("OPS_L", "y position") + 75);
     flipelement("OPM_OPS_L_B");
-    
+
     setnamed("OOSC_WAB_R_T", "x position", getnamed("WAB_R", "x position") + 100);
     setnamed("OOSC_WAB_R_T", "y position", getnamed("WAB_R", "y position") - 75);
     setnamed("OSA_WAB_R_T", "x position", getnamed("WAB_R", "x position") + 200);
@@ -315,7 +310,7 @@ if (record_all) {
     setnamed("OSA_WAB_R_B", "y position", getnamed("WAB_R", "y position") + 100);
     setnamed("OPM_WAB_R_B", "x position", getnamed("WAB_R", "x position") + 300);
     setnamed("OPM_WAB_R_B", "y position", getnamed("WAB_R", "y position") + 100);
-    
+
     # Hiding Analyzers Annotations
     for (i = 1:length(optical_analysers_ports)) {
         setnamed("OOSC_" + optical_analysers_ports{i}, "annotate", annotate_all >= 6);
@@ -323,7 +318,7 @@ if (record_all) {
         setnamed("OPM_" + optical_analysers_ports{i}, "annotate", annotate_all >= 6);
     }
 }
-        
+
 groupscope("::Root Element");
 
 if (getvariable("main__", "") == currentscriptname) {
