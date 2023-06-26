@@ -1,0 +1,143 @@
+if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == currentscriptname) {
+    #?currentscriptname;
+
+    switchtodesign;
+    groupscope("::Root Element");
+    deleteall;
+    clear;
+    main__ = currentscriptname;
+    
+    lambda = 1550e-9;
+    gap = 100e-9;
+    pwr = 1e-3;
+    N = 3;
+    
+    record_all = true;
+    annotate_all = 3;
+}
+
+
+# Create Compond Element
+groupscope("::Root Element");
+unselectall;
+createcompound();
+set("name", "multi_laser");
+
+# Adding Port
+addport("multi_laser", "output", "output", "Optical Signal", "Right", 0.5);
+
+# Change to Compound's Scope
+groupscope("multi_laser");
+
+# Renaming Ports/Relays
+select("RELAY_1");
+set("name", "output");
+
+# Adding Elements
+addelement("Optical Splitter/Coupler");
+set("name", "OC");
+for (i = 1:N) {
+    addelement("CW Laser");
+    set("name", "L_" + num2str(i));
+}
+
+# Positioning Elements
+x_off = 100;
+y_off = 100;
+setnamed("OC", "x position", x_off + 250);
+setnamed("OC", "y position", y_off - (N - 1) * 12);
+flipelement("OC");
+setnamed("output", "x position", x_off + 500);
+setnamed("output", "y position", y_off - (N - 1) * 12 + 32);
+for (i = 1:N) {
+    setnamed("L_" + num2str(i), "x position", x_off);
+    setnamed("L_" + num2str(i), "y position", y_off + ((i - (N + 1)/2) * 200));
+}
+
+# Setting Element Properties
+setnamed("OC", "configuration", "combiner");
+setnamed("OC", "number of ports", N);
+setnamed("OC", "split ratio", "none");
+for (i = 1:N) {
+    setnamed("L_" + num2str(i), "power", pwr);
+    setnamed("L_" + num2str(i), "frequency", c/(lambda + (i - 1) * gap));
+}
+
+
+# Adding Element Connections
+connect("OC", "output", "output", "input");
+for (i = 1:N) {
+    connect("L_" + num2str(i), "output", "OC", "input " + num2str(i));
+}
+
+# Array of Elements
+L_elements = cell(N);
+for (i = 1:N) { L_elements{i} = "L_" + num2str(i); }
+
+# Hiding Element Annotations
+for (i = 1:length(L_elements)) { setnamed(L_elements{i}, "annotate", annotate_all >= 1); }
+
+# For Recording/Degugging
+if (record_all) {
+    optical_analysers_ports = cell(N + 1);
+    optical_analysers_ports{1} = "OC";
+    for (i=1:length(L_elements)){
+        optical_analysers_ports{i + 1} = L_elements{i};
+    }    
+    
+    # Adding Analyzers
+    for (i = 1:length(optical_analysers_ports)) {
+        addelement("Optical Oscilloscope");
+        set("name", "OOSC_" + optical_analysers_ports{i});
+        addelement("Optical Spectrum Analyzer");
+        set("name", "OSA_" + optical_analysers_ports{i});
+        addelement("Optical Power Meter");
+        set("name", "OPM_" + optical_analysers_ports{i});
+    }
+
+
+    # Adding Analyzers Connections
+    for (i = 1:length(optical_analysers_ports)) {
+        analyser = optical_analysers_ports{i};
+        connect(analyser, "output", "OOSC_" + analyser, "input");
+        connect(analyser, "output", "OSA_" + analyser, "input");
+        connect(analyser, "output", "OPM_" + analyser, "input");
+    }
+
+    # Positioning Elements
+    setnamed("OOSC_OC", "x position", getnamed("OC", "x position") + 100);
+    setnamed("OOSC_OC", "y position", getnamed("OC", "y position") - 100);
+    flipelement("OOSC_OC"); rotateelement("OOSC_OC");
+    setnamed("OSA_OC", "x position", getnamed("OC", "x position") + 100);
+    setnamed("OSA_OC", "y position", getnamed("OC", "y position") - 200);
+    flipelement("OSA_OC"); rotateelement("OSA_OC");
+    setnamed("OPM_OC", "x position", getnamed("OC", "x position") + 100);
+    setnamed("OPM_OC", "y position", getnamed("OC", "y position") - 300);
+    flipelement("OPM_OC"); rotateelement("OPM_OC");
+    
+    for (i = 1:length(L_elements)) {
+        analyser = L_elements{i};
+        setnamed("OOSC_" + analyser, "x position", getnamed(analyser, "x position") - 150);
+        setnamed("OOSC_" + analyser, "y position", getnamed(analyser, "y position") - 50);
+        flipelement("OOSC_" + analyser);
+        setnamed("OSA_" + analyser, "x position", getnamed(analyser, "x position") - 250);
+        setnamed("OSA_" + analyser, "y position", getnamed(analyser, "y position") - 50);
+        flipelement("OSA_" + analyser);
+        setnamed("OPM_" + analyser, "x position", getnamed(analyser, "x position") - 350);
+        setnamed("OPM_" + analyser, "y position", getnamed(analyser, "y position") - 50);
+        flipelement("OPM_" + analyser);
+    }
+
+    # Hiding Analyzers Annotations
+    for (i = 1:length(optical_analysers_ports)) {
+        setnamed("OOSC_" + optical_analysers_ports{i}, "annotate", annotate_all >= 6);
+        setnamed("OSA_" + optical_analysers_ports{i}, "annotate", annotate_all >= 6);
+        setnamed("OPM_" + optical_analysers_ports{i}, "annotate", annotate_all >= 6);
+    }
+}
+
+groupscope("::Root Element");
+
+if (getvariable("main__", "") == currentscriptname) {
+    main__ = "";
+}

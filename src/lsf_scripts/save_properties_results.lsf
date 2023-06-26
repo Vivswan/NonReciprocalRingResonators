@@ -1,0 +1,114 @@
+function get_all_results() {
+    groupscope("::Root Element");
+    ids = splitstring(getresultdata, "\n");
+    all_results = cell(length(ids));
+
+    for (i = 1:length(ids)) {
+        id = ids{i};
+        result_ids = splitstring(getresultdata(id), "\n");
+        results = cell(length(result_ids));
+
+        for (j=1:length(result_ids)) {
+            results_id = result_ids{j};
+            result = cell(3);
+            result{1} = results_id;
+            result{2} = getresultdata(id, results_id);
+            result{3} = getresult(id, results_id);
+            results{j} = result;
+        }
+
+        id_results = cell(2);
+        id_results{1} = "::Root Element::" + id;
+        id_results{2} = results;
+        all_results{i} = id_results;
+    }
+
+    return all_results;
+}
+
+function get_element_properties(id) {
+    property_ids = splitstring(getnamed(id), "\n");
+    properties = cell(length(property_ids));
+
+    for (j=1:length(property_ids)) {
+        property = cell(2);
+        property{1} = property_ids{j};
+        property{2} = getnamed(id, property_ids{j});
+        properties{j} = property;
+    }
+
+    return properties;
+}
+
+function get_all_element_properties(root) {
+    if (length(root) == 0) {
+        root = "::Root Element";
+    }
+    loaded_nested = false;
+
+    groupscope(root);
+
+    ids = splitstring(getdata, "\n");
+    all_properties = cell(length(ids) + 1);
+
+    root_properties = cell(2);
+    root_properties{1} = root;
+    root_properties{2} = get_element_properties(root);
+    all_properties{1} = root_properties;
+
+    for (i = 1:length(ids)) {
+        id = ids{i};
+
+        if (getnamed(id, "type") == "Compound Element") {
+            groupscope(root);
+            if (!loaded_nested) {
+                save_properties_results;
+                load_nested = true;
+            }
+            id_properties = get_all_element_properties(root + "::" + id);
+            groupscope(root);
+        } else {
+            id_properties = cell(2);
+            id_properties{1} = root + "::" + id;
+            id_properties{2} = get_element_properties(id);
+        }
+
+        all_properties{i + 1} = id_properties;
+    }
+
+    return all_properties;
+}
+
+function get_all_element_properties(root) {
+    if (length(root) == 0) {
+        root = "::Root Element";
+    }
+
+    groupscope(root);
+
+    ids = splitstring(getdata, "\n");
+    all_properties = cell(length(ids) + 1);
+
+    root_properties = cell(2);
+    root_properties{1} = root;
+    root_properties{2} = get_element_properties(root);
+    all_properties{1} = root_properties;
+
+    for (i = 1:length(ids)) {
+        id = ids{i};
+
+        if (getnamed(id, "type") == "Compound Element") {
+            groupscope(root);
+            id_properties = get_all_element_properties(root + "::" + id);
+            groupscope(root);
+        } else {
+            id_properties = cell(2);
+            id_properties{1} = root + "::" + id;
+            id_properties{2} = get_element_properties(id);
+        }
+
+        all_properties{i + 1} = id_properties;
+    }
+
+    return all_properties;
+}

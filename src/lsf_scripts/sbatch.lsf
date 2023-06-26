@@ -1,0 +1,86 @@
+autosaveoff;
+switchtodesign;
+groupscope("::Root Element");
+deleteall;
+clear;
+clearfunctions;
+
+error_msg = "start";
+for(0; true; 0) {
+    if (length(error_msg) > 1){
+        random_id = rand(1, 10000000, 2);
+        random_id = num2str(random_id);
+        system("echo $SLURM_JOB_ID > " + random_id + ".txt");
+        lumerical_id = read(random_id + ".txt");
+        lumerical_id = replacestring(lumerical_id, "\n", "");
+        rm(random_id + ".txt");
+        
+        if (lumerical_id == "") {lumerical_id = random_id;}
+        if (lumerical_id == "$SLURM_JOB_ID") {lumerical_id = random_id;}
+        if (lumerical_id == "$SLURM_JOB_ID ") {lumerical_id = random_id;}
+        error_msg = "";
+    }
+    number_of_lsf = 0;    
+    files = splitstring(ls("."), "\n");
+    for (i=1:length(files)) {
+        file = files{i};
+        if (findstring(file, ".run.lsf") >= 0) {
+            number_of_lsf = number_of_lsf + 1;
+        } else {
+            files{i} = "null";
+        }
+    }
+    
+    if (number_of_lsf == 0){
+        write(lumerical_id + ".completed.txt", "completed", "overwrite");
+        exit;
+    }
+    
+    lsf_files = cell(number_of_lsf);
+    count = 1;
+    for (i=1:length(files)) {
+        file = files{i};
+        if (file != "null") {
+            lsf_files{count} = file;
+            count = count + 1;
+        }
+    }
+    
+    random_filename = lsf_files{rand(1, number_of_lsf, 2)};
+    running_filename = replacestring(random_filename, ".run.lsf", "." + lumerical_id + ".running.lsf");
+    completed_filename = replacestring(random_filename, ".run.lsf", ".completed.lsf");
+    error_msg = "";
+    try {
+        print("Starting... " + running_filename);
+        mv(random_filename, running_filename);
+        preserve_me = lumerical_id + "\n" + random_filename;
+        feval(running_filename);
+        preserve_me = splitstring(preserve_me, "\n");
+        lumerical_id = preserve_me{1};
+        random_filename = preserve_me{2};
+        running_filename = replacestring(random_filename, ".run.lsf", "." + lumerical_id + ".running.lsf");
+        completed_filename = replacestring(random_filename, ".run.lsf", ".completed.lsf");
+
+        try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".icp"));} catch(error_msg);
+        try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".ich"));} catch(error_msg);
+        try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".log"));} catch(error_msg);
+        try {
+            mat_file = replacestring(random_filename, ".run.lsf", ".mat");
+            sqlite_file = replacestring(random_filename, ".run.lsf", ".sqlite");
+            command = "source ~/.bashrc";
+            command = command + " && conda activate Photonic-Layers";
+            command = command + " && cd @DataDirectoryLocation@";
+            command = command + " && python ~/storage/Photonic-Layers/simulation/compile_data.py -l " + mat_file + " -d " + sqlite_file + " -opm";
+            system(command);
+
+            try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".mat"));} catch(error_msg);
+            try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".completed.txt"));} catch(error_msg);
+
+            mv(running_filename, completed_filename);
+            print("Completed... " + running_filename);
+        } catch(error_msg);
+        if (length(error_msg) > 1) { print("!!! Error... python ^^^^ : " + error_msg); }
+    } catch(error_msg);
+    if (length(error_msg) > 1){ print("!!! Error... lumerical ^^^^ : " + error_msg); }
+    pause(1);
+}
