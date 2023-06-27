@@ -331,83 +331,83 @@ if (record_all) {
     setnamed("OPM_DC_B_RB", "y position", getnamed("DC_B", "y position") + 335);
     rotateelement("OPM_DC_B_RB");
 
-    setnamed("OOSC_OPS_U", "x position", getnamed("OPS_U", "x position") - 100);
+    setnamed("OOSC_OPS_U", "x position", getnamed("OPS_U", "x position") - 150);
     setnamed("OOSC_OPS_U", "y position", getnamed("OPS_U", "y position") - 55);
     flipelement("OOSC_OPS_U");
-    setnamed("OSA_OPS_U", "x position", getnamed("OPS_U", "x position") - 200);
+    setnamed("OSA_OPS_U", "x position", getnamed("OPS_U", "x position") - 250);
     setnamed("OSA_OPS_U", "y position", getnamed("OPS_U", "y position") - 55);
     flipelement("OSA_OPS_U");
-    setnamed("OPM_OPS_U", "x position", getnamed("OPS_U", "x position") - 300);
+    setnamed("OPM_OPS_U", "x position", getnamed("OPS_U", "x position") - 350);
     setnamed("OPM_OPS_U", "y position", getnamed("OPS_U", "y position") - 55);
     flipelement("OPM_OPS_U");
 
-    setnamed("OOSC_OPS_D", "x position", getnamed("OPS_D", "x position") - 100 - 150);
+    setnamed("OOSC_OPS_D", "x position", getnamed("OPS_D", "x position") - 300);
     setnamed("OOSC_OPS_D", "y position", getnamed("OPS_D", "y position") + 55);
     flipelement("OOSC_OPS_D");
-    setnamed("OSA_OPS_D", "x position", getnamed("OPS_D", "x position") - 200 - 150);
+    setnamed("OSA_OPS_D", "x position", getnamed("OPS_D", "x position") - 400);
     setnamed("OSA_OPS_D", "y position", getnamed("OPS_D", "y position") + 55);
     flipelement("OSA_OPS_D");
-    setnamed("OPM_OPS_D", "x position", getnamed("OPS_D", "x position") - 300 - 150);
+    setnamed("OPM_OPS_D", "x position", getnamed("OPS_D", "x position") - 500);
     setnamed("OPM_OPS_D", "y position", getnamed("OPS_D", "y position") + 55);
     flipelement("OPM_OPS_D");
 
-    setnamed("OOSC_CIR_T_T", "x position", getnamed("CIR_T", "x position") - 100 - 133);
+    setnamed("OOSC_CIR_T_T", "x position", getnamed("CIR_T", "x position") - 283);
     setnamed("OOSC_CIR_T_T", "y position", getnamed("CIR_T", "y position") - 75);
     flipelement("OOSC_CIR_T_T");
-    setnamed("OSA_CIR_T_T", "x position", getnamed("CIR_T", "x position") - 200 - 133);
+    setnamed("OSA_CIR_T_T", "x position", getnamed("CIR_T", "x position") - 383);
     setnamed("OSA_CIR_T_T", "y position", getnamed("CIR_T", "y position") - 75);
     flipelement("OSA_CIR_T_T");
-    setnamed("OPM_CIR_T_T", "x position", getnamed("CIR_T", "x position") - 300 - 133);
+    setnamed("OPM_CIR_T_T", "x position", getnamed("CIR_T", "x position") - 483);
     setnamed("OPM_CIR_T_T", "y position", getnamed("CIR_T", "y position") - 75);
     flipelement("OPM_CIR_T_T");
 
-    setnamed("OOSC_CIR_T_L", "x position", getnamed("CIR_T", "x position") - 100 - 133);
+    setnamed("OOSC_CIR_T_L", "x position", getnamed("CIR_T", "x position") - 283);
     setnamed("OOSC_CIR_T_L", "y position", getnamed("CIR_T", "y position") + 16);
     flipelement("OOSC_CIR_T_L");
-    setnamed("OSA_CIR_T_L", "x position", getnamed("CIR_T", "x position") - 200 - 133);
+    setnamed("OSA_CIR_T_L", "x position", getnamed("CIR_T", "x position") - 383);
     setnamed("OSA_CIR_T_L", "y position", getnamed("CIR_T", "y position") + 16);
     flipelement("OSA_CIR_T_L");
-    setnamed("OPM_CIR_T_L", "x position", getnamed("CIR_T", "x position") - 300 - 133);
+    setnamed("OPM_CIR_T_L", "x position", getnamed("CIR_T", "x position") - 483);
     setnamed("OPM_CIR_T_L", "y position", getnamed("CIR_T", "y position") + 16);
     flipelement("OPM_CIR_T_L");
 
-    setnamed("OOSC_CIR_T_B", "x position", getnamed("CIR_T", "x position") - 100 - 133);
+    setnamed("OOSC_CIR_T_B", "x position", getnamed("CIR_T", "x position") - 283);
     setnamed("OOSC_CIR_T_B", "y position", getnamed("CIR_T", "y position") + 90);
     flipelement("OOSC_CIR_T_B");
-    setnamed("OSA_CIR_T_B", "x position", getnamed("CIR_T", "x position") - 200 - 133);
+    setnamed("OSA_CIR_T_B", "x position", getnamed("CIR_T", "x position") - 383);
     setnamed("OSA_CIR_T_B", "y position", getnamed("CIR_T", "y position") + 90);
     flipelement("OSA_CIR_T_B");
-    setnamed("OPM_CIR_T_B", "x position", getnamed("CIR_T", "x position") - 300 - 133);
+    setnamed("OPM_CIR_T_B", "x position", getnamed("CIR_T", "x position") - 483);
     setnamed("OPM_CIR_T_B", "y position", getnamed("CIR_T", "y position") + 90);
     flipelement("OPM_CIR_T_B");
 
-    setnamed("OOSC_CIR_B_T", "x position", getnamed("CIR_B", "x position") - 100 - 133);
+    setnamed("OOSC_CIR_B_T", "x position", getnamed("CIR_B", "x position") - 283);
     setnamed("OOSC_CIR_B_T", "y position", getnamed("CIR_B", "y position") - 75);
     flipelement("OOSC_CIR_B_T");
-    setnamed("OSA_CIR_B_T", "x position", getnamed("CIR_B", "x position") - 200 - 133);
+    setnamed("OSA_CIR_B_T", "x position", getnamed("CIR_B", "x position") - 383);
     setnamed("OSA_CIR_B_T", "y position", getnamed("CIR_B", "y position") - 75);
     flipelement("OSA_CIR_B_T");
-    setnamed("OPM_CIR_B_T", "x position", getnamed("CIR_B", "x position") - 300 - 133);
+    setnamed("OPM_CIR_B_T", "x position", getnamed("CIR_B", "x position") - 483);
     setnamed("OPM_CIR_B_T", "y position", getnamed("CIR_B", "y position") - 75);
     flipelement("OPM_CIR_B_T");
 
-    setnamed("OOSC_CIR_B_L", "x position", getnamed("CIR_B", "x position") - 100 - 133);
+    setnamed("OOSC_CIR_B_L", "x position", getnamed("CIR_B", "x position") - 283);
     setnamed("OOSC_CIR_B_L", "y position", getnamed("CIR_B", "y position") + 16);
     flipelement("OOSC_CIR_B_L");
-    setnamed("OSA_CIR_B_L", "x position", getnamed("CIR_B", "x position") - 200 - 133);
+    setnamed("OSA_CIR_B_L", "x position", getnamed("CIR_B", "x position") - 383);
     setnamed("OSA_CIR_B_L", "y position", getnamed("CIR_B", "y position") + 16);
     flipelement("OSA_CIR_B_L");
-    setnamed("OPM_CIR_B_L", "x position", getnamed("CIR_B", "x position") - 300 - 133);
+    setnamed("OPM_CIR_B_L", "x position", getnamed("CIR_B", "x position") - 483);
     setnamed("OPM_CIR_B_L", "y position", getnamed("CIR_B", "y position") + 16);
     flipelement("OPM_CIR_B_L");
 
-    setnamed("OOSC_CIR_B_B", "x position", getnamed("CIR_B", "x position") - 100 - 133);
+    setnamed("OOSC_CIR_B_B", "x position", getnamed("CIR_B", "x position") - 283);
     setnamed("OOSC_CIR_B_B", "y position", getnamed("CIR_B", "y position") + 90);
     flipelement("OOSC_CIR_B_B");
-    setnamed("OSA_CIR_B_B", "x position", getnamed("CIR_B", "x position") - 200 - 133);
+    setnamed("OSA_CIR_B_B", "x position", getnamed("CIR_B", "x position") - 383);
     setnamed("OSA_CIR_B_B", "y position", getnamed("CIR_B", "y position") + 90);
     flipelement("OSA_CIR_B_B");
-    setnamed("OPM_CIR_B_B", "x position", getnamed("CIR_B", "x position") - 300 - 133);
+    setnamed("OPM_CIR_B_B", "x position", getnamed("CIR_B", "x position") - 483);
     setnamed("OPM_CIR_B_B", "y position", getnamed("CIR_B", "y position") + 90);
     flipelement("OPM_CIR_B_B");
 
