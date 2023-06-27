@@ -8,7 +8,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     #main__ = currentscriptname;
 
     record_all = true;
-    annotate_all = 1;
+    annotate_all = 3;
 }
 
 
@@ -97,6 +97,12 @@ flipelement("RO_LB");
 setexpression("OPS_U", "phase shift", "phase");
 setexpression("OPS_D", "phase shift", "-phase");
 setexpression("WAB_R", "radius", "radius");
+setnamed("CIR_T", "insertion loss", 1e-100);
+setnamed("CIR_B", "insertion loss", 1e-100);
+setnamed("CIR_T", "isolation", 1e100);
+setnamed("CIR_B", "isolation", 1e100);
+setnamed("CIR_T", "return loss", 1e100);
+setnamed("CIR_B", "return loss", 1e100);
 setnamed("OPS_U", "configuration", "unidirectional");
 setnamed("OPS_D", "configuration", "unidirectional");
 setnamed("WAB_R", "angle", 4*pi);
