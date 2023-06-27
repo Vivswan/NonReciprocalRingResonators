@@ -10,15 +10,17 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     lambda = 1550e-9;
     gap = 100e-9;
     pwr = 1e-3;
-    N = 2;
+    N = 1;
     
     laser_sweep = false;
     record_all = true;
     annotate_all = 3;
 }
 
+if (N < 1) { print("WTF?"); break; }
+
 # Adding Elements
-create_reciprocal_ring_resonator;
+create_reciprocal_ring;
 
 if (laser_sweep) {
 } else {
@@ -109,11 +111,13 @@ connect("W_R_B", "port 1", "R_" + num2str(N), "rb_o");
 connect("W_R_T", "port 2", "PIN_T", "input");
 connect("W_L_B", "port 1", "PIN_D", "input");
 connect("W_R_B", "port 2", "PIN_TD", "input");
-for (i = 2:N) {
-    connect("R_" + num2str(i - 1), "rt_o", "W_T_" + num2str(i - 1) + "_" + num2str(i), "port 1");
-    connect("R_" + num2str(i - 1), "rb_o", "W_B_" + num2str(i - 1) + "_" + num2str(i), "port 1");
-    connect("R_" + num2str(i), "lt_o", "W_T_" + num2str(i - 1) + "_" + num2str(i), "port 2");
-    connect("R_" + num2str(i), "lb_o", "W_B_" + num2str(i - 1) + "_" + num2str(i), "port 2");
+if (N >= 2) {
+    for (i = 2:N) {
+        connect("R_" + num2str(i - 1), "rt_o", "W_T_" + num2str(i - 1) + "_" + num2str(i), "port 1");
+        connect("R_" + num2str(i - 1), "rb_o", "W_B_" + num2str(i - 1) + "_" + num2str(i), "port 1");
+        connect("R_" + num2str(i), "lt_o", "W_T_" + num2str(i - 1) + "_" + num2str(i), "port 2");
+        connect("R_" + num2str(i), "lb_o", "W_B_" + num2str(i - 1) + "_" + num2str(i), "port 2");
+    }
 }
 for (i = 1:length(eletrical_analysers_ports)) {
     connect(eletrical_analysers_ports{i}, "output", "EOSC_" + eletrical_analysers_ports{i}, "input");
@@ -123,17 +127,19 @@ for (i = 1:length(eletrical_analysers_ports)) {
 # Array of Elements
 elements = {"laser", "W_L_T", "W_L_B", "W_R_T", "W_R_B", "PIN_T", "PIN_TD", "PIN_D"};
 R_elements = cell(N);
-W_elements = cell((N - 1) * 2);
 for (i = 1:N) { R_elements{i} = "R_" + num2str(i); }
-for (i = 2:N) {
-    W_elements{2 * (i - 2) + 1} = "W_T_" + num2str(i - 1) + "_" + num2str(i);
-    W_elements{2 * (i - 2) + 2} = "W_B_" + num2str(i - 1) + "_" + num2str(i);
+if (N >= 2) {
+    W_elements = cell((N - 1) * 2);
+    for (i = 2:N) {
+        W_elements{2 * (i - 2) + 1} = "W_T_" + num2str(i - 1) + "_" + num2str(i);
+        W_elements{2 * (i - 2) + 2} = "W_B_" + num2str(i - 1) + "_" + num2str(i);
+    }
 }
     
 # Hiding Element Annotations
 for (i = 1:length(elements)) { setnamed(elements{i}, "annotate", annotate_all >= 1); }
 for (i = 1:length(R_elements)) { setnamed(R_elements{i}, "annotate", annotate_all >= 1); }
-for (i = 1:length(W_elements)) { setnamed(W_elements{i}, "annotate", annotate_all >= 1); }
+if (N >= 2) {for (i = 1:length(W_elements)) { setnamed(W_elements{i}, "annotate", annotate_all >= 1); }}
 
 # For Recording/Degugging
 if (record_all) {
@@ -151,11 +157,13 @@ if (record_all) {
         off = off + 1; optical_analysers_ports{off} = "R_" + num2str(i) + "_rt";
         off = off + 1; optical_analysers_ports{off} = "R_" + num2str(i) + "_rb";
     }
-    for (i = 2:N) {
-        off = off + 1; optical_analysers_ports{off} = "W_T_" + num2str(i - 1) + "_" + num2str(i) + "_1";
-        off = off + 1; optical_analysers_ports{off} = "W_T_" + num2str(i - 1) + "_" + num2str(i) + "_2";
-        off = off + 1; optical_analysers_ports{off} = "W_B_" + num2str(i - 1) + "_" + num2str(i) + "_1";
-        off = off + 1; optical_analysers_ports{off} = "W_B_" + num2str(i - 1) + "_" + num2str(i) + "_2";
+    if (N >= 2) {
+        for (i = 2:N) {
+            off = off + 1; optical_analysers_ports{off} = "W_T_" + num2str(i - 1) + "_" + num2str(i) + "_1";
+            off = off + 1; optical_analysers_ports{off} = "W_T_" + num2str(i - 1) + "_" + num2str(i) + "_2";
+            off = off + 1; optical_analysers_ports{off} = "W_B_" + num2str(i - 1) + "_" + num2str(i) + "_1";
+            off = off + 1; optical_analysers_ports{off} = "W_B_" + num2str(i - 1) + "_" + num2str(i) + "_2";
+        }
     }
     
     for (i = 1:length(optical_analysers_ports)) {
@@ -201,9 +209,11 @@ if (record_all) {
         off = off + 1; up_element{off} = "R_" + num2str(i) + "_lt";
         off = off + 1; up_element{off} = "R_" + num2str(i) + "_rt";
     }
-    for (i = 2:N) {
-        off = off + 1; up_element{off} = "W_T_" + num2str(i - 1) + "_" + num2str(i) + "_1";
-        off = off + 1; up_element{off} = "W_T_" + num2str(i - 1) + "_" + num2str(i) + "_2";
+    if (N >= 2) {
+        for (i = 2:N) {
+            off = off + 1; up_element{off} = "W_T_" + num2str(i - 1) + "_" + num2str(i) + "_1";
+            off = off + 1; up_element{off} = "W_T_" + num2str(i - 1) + "_" + num2str(i) + "_2";
+        }
     }
     for (i = 1:length(up_element)) {
         analyser = up_element{i};
@@ -249,9 +259,11 @@ if (record_all) {
         off = off + 1; down_element{off} = "R_" + num2str(i) + "_lb";
         off = off + 1; down_element{off} = "R_" + num2str(i) + "_rb";
     }
-    for (i = 2:N) {
-        off = off + 1; down_element{off} = "W_B_" + num2str(i - 1) + "_" + num2str(i) + "_1";
-        off = off + 1; down_element{off} = "W_B_" + num2str(i - 1) + "_" + num2str(i) + "_2";
+    if (N >= 2) {
+        for (i = 2:N) {
+            off = off + 1; down_element{off} = "W_B_" + num2str(i - 1) + "_" + num2str(i) + "_1";
+            off = off + 1; down_element{off} = "W_B_" + num2str(i - 1) + "_" + num2str(i) + "_2";
+        }
     }
     for (i = 1:length(down_element)) {
         analyser = down_element{i};
