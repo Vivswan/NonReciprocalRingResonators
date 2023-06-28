@@ -12,9 +12,9 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     pwr = 1e-3;
     N = 1;
     
-    laser_sweep = false;
+    laser_sweep = true;
     record_all = true;
-    annotate_all = 1;
+    annotate_all = 0;
 }
 
 if (N < 1) { print("WTF?"); break; }
@@ -23,6 +23,11 @@ if (N < 1) { print("WTF?"); break; }
 create_non_reciprocal_ring;
 
 if (laser_sweep) {
+    sweep_laser;
+    flipelement("laser");
+    rotateelement("laser");
+    rotateelement("laser");
+    rotateelement("laser");
 } else {
     create_multi_laser;
     select("multi_laser");
@@ -70,7 +75,7 @@ delete;
 # Positioning Elements
 x_off = 0;
 y_off = 0;
-setnamed("laser", "x position", x_off);
+setnamed("laser", "x position", x_off - 100);
 setnamed("laser", "y position", y_off);
 setnamed("OS", "x position", x_off + 200);
 setnamed("OS", "y position", y_off);
@@ -119,6 +124,10 @@ connect("W_R_T", "port 1", "R_" + num2str(N), "rt_o");
 connect("W_R_B", "port 1", "R_" + num2str(N), "rb_o");
 connect("W_R_T", "port 2", "PIN_T", "input");
 connect("W_R_B", "port 2", "PIN_D", "input");
+if (laser_sweep) {
+    connect("laser", "input 1", "W_R_T", "port 2");
+    connect("laser", "input 2", "W_R_B", "port 2");
+}
 if (N >= 2) {
     for (i = 2:N) {
         connect("R_" + num2str(i - 1), "rt_o", "W_T_" + num2str(i - 1) + "_" + num2str(i), "port 1");
@@ -213,15 +222,15 @@ if (record_all) {
     
     
     # Positioning Elements
-    setnamed("OOSC_laser", "x position", getnamed("laser", "x position") + 100);
-    setnamed("OOSC_laser", "y position", getnamed("laser", "y position") - 175);
-    flipelement("OOSC_laser"); rotateelement("OOSC_laser");
-    setnamed("OSA_laser", "x position", getnamed("laser", "x position") + 100);
-    setnamed("OSA_laser", "y position", getnamed("laser", "y position") - 275);
-    flipelement("OSA_laser"); rotateelement("OSA_laser");
-    setnamed("OPM_laser", "x position", getnamed("laser", "x position") + 100);
-    setnamed("OPM_laser", "y position", getnamed("laser", "y position") - 375);
-    flipelement("OPM_laser"); rotateelement("OPM_laser");
+    setnamed("OOSC_laser", "x position", getnamed("laser", "x position") + 200);
+    setnamed("OOSC_laser", "y position", getnamed("laser", "y position") + 175);
+    rotateelement("OOSC_laser");
+    setnamed("OSA_laser", "x position", getnamed("laser", "x position") + 200);
+    setnamed("OSA_laser", "y position", getnamed("laser", "y position") + 275);
+    rotateelement("OSA_laser");
+    setnamed("OPM_laser", "x position", getnamed("laser", "x position") + 200);
+    setnamed("OPM_laser", "y position", getnamed("laser", "y position") + 375);
+    rotateelement("OPM_laser");
     
     fixed_up_element = {"OS_U", "W_L_T_1", "W_L_T_2", "W_R_T_1", "W_R_T_2"};    
     up_element = cell(length(fixed_up_element) + (N * 2) + (N - 1) * 2);

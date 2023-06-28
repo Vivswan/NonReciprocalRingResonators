@@ -1,0 +1,49 @@
+if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == currentscriptname) {
+    #?currentscriptname;
+
+    switchtodesign;
+    groupscope("::Root Element");
+    deleteall;
+    clear;
+    main__ = currentscriptname;
+    
+    lambda_from = c/190.1e12;
+    lambda_till = c/197.25e12;
+    pwr = 1e-3;
+    
+    record_all = true;
+    annotate_all = 2;
+}
+
+
+# Create Compond Element
+groupscope("::Root Element");
+
+# Adding Elements
+addelement("Optical Network Analyzer");
+set("name", "laser");
+
+# Positioning Elements
+setnamed("laser", "x position", 0);
+setnamed("laser", "y position", 0);
+
+# Setting Element Properties
+setnamed("laser", "input parameter", "start and stop");
+setnamed("laser", "start frequency", 190.1e12);
+setnamed("laser", "start frequency", 197.25e12);
+setnamed("laser", "number of points", 1e4);
+setnamed("laser", "power", pwr);
+setnamed("laser", "number of input ports", 3);
+setnamed("laser", "plot kind", "wavelength");
+setnamed("laser", "angle unit", "rad");
+setnamed("laser", "peak analysis", "disable");
+setnamed("laser", "multithreading", "automatic");
+
+# Hiding Element Annotations
+setnamed("laser", "annotate", annotate_all >= 1);
+
+groupscope("::Root Element");
+
+if (getvariable("main__", "") == currentscriptname) {
+    main__ = "";
+}
