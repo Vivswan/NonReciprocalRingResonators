@@ -28,8 +28,12 @@ addport("reciprocal_ring_resonator", "rb_o", "bidirectional", "Optical Signal", 
 # Adding Properties
 addproperty("reciprocal_ring_resonator", "phase", "Standard", type="Number", from=-4*pi, to=4*pi, kind="FixedUnit", unit="", default_value=(rand * 4 * pi - 2 * pi));
 addproperty("reciprocal_ring_resonator", "radius", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=20e-6);
+addproperty("reciprocal_ring_resonator", "left_edge_length", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=10e-6);
+addproperty("reciprocal_ring_resonator", "right_edge_length", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=10e-6);
 annotateproperty("reciprocal_ring_resonator", "phase", annotate_all >= 1);
 annotateproperty("reciprocal_ring_resonator", "radius", annotate_all >= 3);
+annotateproperty("reciprocal_ring_resonator", "left_edge_length", annotate_all >= 3);
+annotateproperty("reciprocal_ring_resonator", "right_edge_length", annotate_all >= 3);
 
 # Change to Compound's Scope
 groupscope("reciprocal_ring_resonator");
@@ -118,6 +122,7 @@ if (waveguides) {
 setexpression("OPS_CW", "phase shift", "phase");
 setexpression("OPS_CCW", "phase shift", "-phase");
 setexpression("WAB_R", "radius", "radius");
+setnamed("WAB_R", "angle", 4*pi);
 setnamed("CIR_T", "insertion loss", 1e-100);
 setnamed("CIR_B", "insertion loss", 1e-100);
 setnamed("CIR_T", "isolation", 1e100);
@@ -126,7 +131,12 @@ setnamed("CIR_T", "return loss", 1e100);
 setnamed("CIR_B", "return loss", 1e100);
 setnamed("OPS_CW", "configuration", "unidirectional");
 setnamed("OPS_CCW", "configuration", "unidirectional");
-setnamed("WAB_R", "angle", 4*pi);
+if (waveguides) {
+    setexpression("SW_TL", "length", "left_edge_length");
+    setexpression("SW_TR", "length", "right_edge_length");
+    setexpression("SW_BL", "length", "left_edge_length");
+    setexpression("SW_BR", "length", "right_edge_length");
+}
 
 # Adding Element Connections
 if (waveguides) {
@@ -140,15 +150,15 @@ if (waveguides) {
 } else { connect("DC_T", "port 3", "RO_RT", "port"); }
 connect("DC_T", "port 4", "WAB_R", "port 1");
 connect("DC_B", "port 1", "CIR_B", "port 2");
+if (waveguides) {
+    connect("DC_B", "port 2", "SW_BL", "port 2");
+    connect("SW_BL", "port 1", "RO_LB", "port");
+} else { connect("DC_B", "port 2", "RO_LB", "port"); }
 connect("DC_B", "port 3", "WAB_R", "port 2");
 if (waveguides) {
     connect("DC_B", "port 4", "SW_BR", "port 1");
     connect("SW_BR", "port 2", "RO_RB", "port");
 } else { connect("DC_B", "port 4", "RO_RB", "port"); }
-if (waveguides) {
-    connect("DC_B", "port 2", "SW_BL", "port 2");
-    connect("SW_BL", "port 1", "RO_LB", "port");
-} else { connect("DC_B", "port 2", "RO_LB", "port"); }
 connect("CIR_T", "port 2", "OPS_CCW", "input");
 connect("CIR_T", "port 3", "OPS_CW", "output");
 connect("CIR_B", "port 1", "OPS_CCW", "output");
@@ -237,6 +247,8 @@ if (record_all) {
         if (element_x > max_x) { max_x = element_x; }
         if (element_y > max_y) { max_y = element_y; }
     }
+    min_x = min_x + 150;
+    max_x = max_x - 300;
 
     up_element = {{"RO_LT", 50}, {"DC_T_1", -50}, {"DC_T_2", -150}, {"DC_T_3", 85}, {"DC_T_4", 185}, {"RO_RT", -50}};
     down_element = {{"RO_LB", 50}, {"DC_B_1", -50}, {"DC_B_2", -150}, {"DC_B_3", 85}, {"DC_B_4", 185}, {"RO_RB", -50}};

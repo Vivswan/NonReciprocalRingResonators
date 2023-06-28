@@ -7,8 +7,9 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     clear;
     #main__ = currentscriptname;
 
+    waveguides = true;
     record_all = true;
-    annotate_all = 3;
+    annotate_all = 0;
 }
 
 
@@ -27,8 +28,12 @@ addport("reciprocal_ring_resonator", "rb_o", "bidirectional", "Optical Signal", 
 # Adding Properties
 addproperty("reciprocal_ring_resonator", "phase", "Standard", type="Number", from=-4*pi, to=4*pi, kind="FixedUnit", unit="", default_value=(rand * 4 * pi - 2 * pi));
 addproperty("reciprocal_ring_resonator", "radius", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=20e-6);
+addproperty("reciprocal_ring_resonator", "left_edge_length", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=10e-6);
+addproperty("reciprocal_ring_resonator", "right_edge_length", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=10e-6);
 annotateproperty("reciprocal_ring_resonator", "phase", annotate_all >= 1);
 annotateproperty("reciprocal_ring_resonator", "radius", annotate_all >= 3);
+annotateproperty("reciprocal_ring_resonator", "left_edge_length", annotate_all >= 3);
+annotateproperty("reciprocal_ring_resonator", "right_edge_length", annotate_all >= 3);
 
 # Change to Compound's Scope
 groupscope("reciprocal_ring_resonator");
@@ -52,6 +57,16 @@ addelement("Optical Phase Shift");
 set("name", "OPS_L");
 addelement("Waveguide Arc Bend");
 set("name", "WAB_R");
+if (waveguides) {
+    addelement("Straight Waveguide");
+    set("name", "SW_TL");
+    addelement("Straight Waveguide");
+    set("name", "SW_TR");
+    addelement("Straight Waveguide");
+    set("name", "SW_BL");
+    addelement("Straight Waveguide");
+    set("name", "SW_BR");
+}
 
 # Positioning Elements
 x_off = 100;
@@ -60,15 +75,15 @@ y_off = 100;
 setnamed("RO_LT", "x position", x_off);
 setnamed("RO_LT", "y position", y_off);
 flipelement("RO_LT");
-setnamed("DC_T", "x position", x_off + 380);
+setnamed("DC_T", "x position", x_off + 580);
 setnamed("DC_T", "y position", y_off + 3);
-setnamed("RO_RT", "x position", x_off + 800);
+setnamed("RO_RT", "x position", x_off + 1200);
 setnamed("RO_RT", "y position", getnamed("RO_LT", "y position"));
-setnamed("OPS_L", "x position", x_off + 200);
+setnamed("OPS_L", "x position", x_off + 400);
 setnamed("OPS_L", "y position", y_off + 200);
 rotateelement("OPS_L");
-setnamed("WAB_R", "x position", x_off + 600);
-setnamed("WAB_R", "y position", y_off + 180);
+setnamed("WAB_R", "x position", x_off + 800);
+setnamed("WAB_R", "y position", y_off + 200);
 rotateelement("WAB_R");
 setnamed("DC_B", "x position", getnamed("DC_T", "x position"));
 setnamed("DC_B", "y position", y_off + 400);
@@ -77,24 +92,59 @@ setnamed("RO_LB", "y position", getnamed("DC_B", "y position") + 35);
 setnamed("RO_RB", "x position", getnamed("RO_RT", "x position"));
 setnamed("RO_RB", "y position", getnamed("RO_LB", "y position"));
 flipelement("RO_LB");
+if (waveguides) {
+    setnamed("SW_TL", "x position", x_off + 250);
+    setnamed("SW_TL", "y position", getnamed("RO_LT", "y position") - 16);
+    setnamed("SW_TR", "x position", x_off + 900);
+    setnamed("SW_TR", "y position", getnamed("RO_LT", "y position") - 16);
+    setnamed("SW_BL", "x position", getnamed("SW_TL", "x position"));
+    setnamed("SW_BL", "y position", getnamed("RO_LB", "y position") - 16);
+    setnamed("SW_BR", "x position", getnamed("SW_TR", "x position"));
+    setnamed("SW_BR", "y position", getnamed("RO_LB", "y position") - 16);
+}
 
 # Setting Element Properties
 setexpression("OPS_L", "phase shift", "phase");
 setexpression("WAB_R", "radius", "radius");
 setnamed("WAB_R", "angle", 4*pi);
+if (waveguides) {
+    setexpression("SW_TL", "length", "left_edge_length");
+    setexpression("SW_TR", "length", "right_edge_length");
+    setexpression("SW_BL", "length", "left_edge_length");
+    setexpression("SW_BR", "length", "right_edge_length");
+}
 
 # Adding Element Connections
-connect("DC_T", "port 1", "RO_LT", "port");
+if (waveguides) {
+    connect("DC_T", "port 1", "SW_TL", "port 2");
+    connect("SW_TL", "port 1", "RO_LT", "port");
+} else { connect("DC_T", "port 1", "RO_LT", "port"); }
 connect("DC_T", "port 2", "OPS_L", "port 1");
-connect("DC_T", "port 3", "RO_RT", "port");
+if (waveguides) {
+    connect("DC_T", "port 3", "SW_TR", "port 1");
+    connect("SW_TR", "port 2", "RO_RT", "port");
+} else { connect("DC_T", "port 3", "RO_RT", "port"); }
 connect("DC_T", "port 4", "WAB_R", "port 1");
 connect("DC_B", "port 1", "OPS_L", "port 2");
-connect("DC_B", "port 2", "RO_LB", "port");
+if (waveguides) {
+    connect("DC_B", "port 2", "SW_BL", "port 2");
+    connect("SW_BL", "port 1", "RO_LB", "port");
+} else { connect("DC_B", "port 2", "RO_LB", "port"); }
 connect("DC_B", "port 3", "WAB_R", "port 2");
-connect("DC_B", "port 4", "RO_RB", "port");
+if (waveguides) {
+    connect("DC_B", "port 4", "SW_BR", "port 1");
+    connect("SW_BR", "port 2", "RO_RB", "port");
+} else { connect("DC_B", "port 4", "RO_RB", "port"); }
 
 # Array of Elements
 multiper_elements = {"RO_LT", "RO_LB", "RO_RT", "RO_RB", "DC_T", "DC_B", "OPS_L", "WAB_R"};
+W_elements = {"SW_TL", "SW_TR", "SW_BL", "SW_BR"};
+if (waveguides) {
+    temp = cell(length(multiper_elements) + 4);
+    for (i=1:length(multiper_elements)) { temp{i} = multiper_elements{i}; }
+    for (i=1:length(W_elements)) { temp{length(multiper_elements) + i} = W_elements{i}; }
+    multiper_elements = temp;
+}
 
 # Hiding Element Annotations
 for (i = 1:length(multiper_elements)) { setnamed(multiper_elements{i}, "annotate", annotate_all >= 3); }
@@ -102,7 +152,16 @@ for (i = 1:length(multiper_elements)) { setnamed(multiper_elements{i}, "annotate
 # For Recording/Degugging
 if (record_all) {
     # Adding Analyzers
-    optical_analysers_ports = {"RO_LT", "RO_LB", "RO_RT", "RO_RB", "DC_T_LT", "DC_T_RT", "DC_T_LB", "DC_T_RB", "DC_B_LT", "DC_B_RT", "DC_B_LB", "DC_B_RB", "OPS_L_T", "OPS_L_B", "WAB_R_T", "WAB_R_B"};
+    optical_analysers_ports = {"RO_LT", "RO_LB", "RO_RT", "RO_RB", "DC_T_1", "DC_T_2", "DC_T_3", "DC_T_4", "DC_B_1", "DC_B_2", "DC_B_3", "DC_B_4", "OPS_L_1", "OPS_L_2", "WAB_R_1", "WAB_R_2"};
+    if (waveguides) {
+        temp = cell(length(optical_analysers_ports) + 4 * 2);
+        for (i=1:length(optical_analysers_ports)) { temp{i} = optical_analysers_ports{i}; }
+        for (i=1:length(W_elements)) {
+            temp{length(optical_analysers_ports) + 2 * (i-1) + 1} = W_elements{i} + "_1";
+            temp{length(optical_analysers_ports) + 2 * (i-1) + 2} = W_elements{i} + "_2";
+        }
+        optical_analysers_ports = temp;
+    }
 
     for (i = 1:length(optical_analysers_ports)) {
         addelement("Optical Oscilloscope");
@@ -115,209 +174,142 @@ if (record_all) {
 
 
     # Adding Analyzers Connections
-    connect("RO_LT", "port", "OOSC_RO_LT", "input");
-    connect("RO_LT", "port", "OSA_RO_LT", "input");
-    connect("RO_LT", "port", "OPM_RO_LT", "input");
-    connect("RO_LB", "port", "OOSC_RO_LB", "input");
-    connect("RO_LB", "port", "OSA_RO_LB", "input");
-    connect("RO_LB", "port", "OPM_RO_LB", "input");
-    connect("RO_RT", "port", "OOSC_RO_RT", "input");
-    connect("RO_RT", "port", "OSA_RO_RT", "input");
-    connect("RO_RT", "port", "OPM_RO_RT", "input");
-    connect("RO_RB", "port", "OOSC_RO_RB", "input");
-    connect("RO_RB", "port", "OSA_RO_RB", "input");
-    connect("RO_RB", "port", "OPM_RO_RB", "input");
-    connect("DC_T", "port 1", "OOSC_DC_T_LT", "input");
-    connect("DC_T", "port 1", "OSA_DC_T_LT", "input");
-    connect("DC_T", "port 1", "OPM_DC_T_LT", "input");
-    connect("DC_T", "port 2", "OOSC_DC_T_LB", "input");
-    connect("DC_T", "port 2", "OSA_DC_T_LB", "input");
-    connect("DC_T", "port 2", "OPM_DC_T_LB", "input");
-    connect("DC_T", "port 3", "OOSC_DC_T_RT", "input");
-    connect("DC_T", "port 3", "OSA_DC_T_RT", "input");
-    connect("DC_T", "port 3", "OPM_DC_T_RT", "input");
-    connect("DC_T", "port 4", "OOSC_DC_T_RB", "input");
-    connect("DC_T", "port 4", "OSA_DC_T_RB", "input");
-    connect("DC_T", "port 4", "OPM_DC_T_RB", "input");
-    connect("DC_B", "port 1", "OOSC_DC_B_LT", "input");
-    connect("DC_B", "port 1", "OSA_DC_B_LT", "input");
-    connect("DC_B", "port 1", "OPM_DC_B_LT", "input");
-    connect("DC_B", "port 2", "OOSC_DC_B_LB", "input");
-    connect("DC_B", "port 2", "OSA_DC_B_LB", "input");
-    connect("DC_B", "port 2", "OPM_DC_B_LB", "input");
-    connect("DC_B", "port 3", "OOSC_DC_B_RT", "input");
-    connect("DC_B", "port 3", "OSA_DC_B_RT", "input");
-    connect("DC_B", "port 3", "OPM_DC_B_RT", "input");
-    connect("DC_B", "port 4", "OOSC_DC_B_RB", "input");
-    connect("DC_B", "port 4", "OSA_DC_B_RB", "input");
-    connect("DC_B", "port 4", "OPM_DC_B_RB", "input");
-    connect("OPS_L", "port 1", "OOSC_OPS_L_T", "input");
-    connect("OPS_L", "port 1", "OSA_OPS_L_T", "input");
-    connect("OPS_L", "port 1", "OPM_OPS_L_T", "input");
-    connect("OPS_L", "port 2", "OOSC_OPS_L_B", "input");
-    connect("OPS_L", "port 2", "OSA_OPS_L_B", "input");
-    connect("OPS_L", "port 2", "OPM_OPS_L_B", "input");
-    connect("WAB_R", "port 1", "OOSC_WAB_R_T", "input");
-    connect("WAB_R", "port 1", "OSA_WAB_R_T", "input");
-    connect("WAB_R", "port 1", "OPM_WAB_R_T", "input");
-    connect("WAB_R", "port 2", "OOSC_WAB_R_B", "input");
-    connect("WAB_R", "port 2", "OSA_WAB_R_B", "input");
-    connect("WAB_R", "port 2", "OPM_WAB_R_B", "input");
+    connections = {"RO_LT", "RO_LB", "RO_RT", "RO_RB"};
+    for (i=1:length(connections)) {
+        connect(connections{i}, "port", "OOSC_" + connections{i}, "input");
+        connect(connections{i}, "port", "OSA_" + connections{i}, "input");
+        connect(connections{i}, "port", "OPM_" + connections{i}, "input");
+    }
+    connections = {"DC_T_1", "DC_T_2", "DC_T_3", "DC_T_4", "DC_B_1", "DC_B_2", "DC_B_3", "DC_B_4", "OPS_L_1", "OPS_L_2", "WAB_R_1", "WAB_R_2"};
+    for (i=1:length(connections)) {
+        element = substring(connections{i}, 1, length(connections{i}) - 2);
+        port_number = substring(connections{i}, length(connections{i}), 1);
+        connect(element, "port " + port_number, "OOSC_" + connections{i}, "input");
+        connect(element, "port " + port_number, "OSA_" + connections{i}, "input");
+        connect(element, "port " + port_number, "OPM_" + connections{i}, "input");
+    }
+    if (waveguides) {
+        for (i=1:length(W_elements)) { 
+            connect(W_elements{i}, "port 1", "OOSC_" + W_elements{i} + "_1", "input");
+            connect(W_elements{i}, "port 1", "OSA_" + W_elements{i} + "_1", "input");
+            connect(W_elements{i}, "port 1", "OPM_" + W_elements{i} + "_1", "input");
+            connect(W_elements{i}, "port 2", "OOSC_" + W_elements{i} + "_2", "input");
+            connect(W_elements{i}, "port 2", "OSA_" + W_elements{i} + "_2", "input");
+            connect(W_elements{i}, "port 2", "OPM_" + W_elements{i} + "_2", "input");
+        }
+    }
 
     # Positioning Elements
-    setnamed("OOSC_RO_LT", "x position", getnamed("RO_LT", "x position") + 100);
-    setnamed("OOSC_RO_LT", "y position", getnamed("RO_LT", "y position") - 100);
-    rotateelement("OOSC_RO_LT"); rotateelement("OOSC_RO_LT"); rotateelement("OOSC_RO_LT");
-    setnamed("OSA_RO_LT", "x position", getnamed("RO_LT", "x position") + 100);
-    setnamed("OSA_RO_LT", "y position", getnamed("RO_LT", "y position") - 200);
-    rotateelement("OSA_RO_LT"); rotateelement("OSA_RO_LT"); rotateelement("OSA_RO_LT");
-    setnamed("OPM_RO_LT", "x position", getnamed("RO_LT", "x position") + 100);
-    setnamed("OPM_RO_LT", "y position", getnamed("RO_LT", "y position") - 300);
-    rotateelement("OPM_RO_LT"); rotateelement("OPM_RO_LT"); rotateelement("OPM_RO_LT");
+    min_x = 1e100;
+    min_y = 1e100;
+    max_x = 0;
+    max_y = 0;
+    for (i=1:length(multiper_elements)) { 
+        element_x = getnamed(multiper_elements{i}, "x position");
+        element_y = getnamed(multiper_elements{i}, "y position");
 
-    setnamed("OOSC_RO_RT", "x position", getnamed("RO_RT", "x position") - 100);
-    setnamed("OOSC_RO_RT", "y position", getnamed("RO_RT", "y position") - 100);
-    rotateelement("OOSC_RO_RT"); rotateelement("OOSC_RO_RT"); rotateelement("OOSC_RO_RT");
-    setnamed("OSA_RO_RT", "x position", getnamed("RO_RT", "x position") - 100);
-    setnamed("OSA_RO_RT", "y position", getnamed("RO_RT", "y position") - 200);
-    rotateelement("OSA_RO_RT"); rotateelement("OSA_RO_RT"); rotateelement("OSA_RO_RT");
-    setnamed("OPM_RO_RT", "x position", getnamed("RO_RT", "x position") - 100);
-    setnamed("OPM_RO_RT", "y position", getnamed("RO_RT", "y position") - 300);
-    rotateelement("OPM_RO_RT"); rotateelement("OPM_RO_RT"); rotateelement("OPM_RO_RT");
+        if (element_x < min_x) { min_x = element_x; }
+        if (element_y < min_y) { min_y = element_y; }
+        if (element_x > max_x) { max_x = element_x; }
+        if (element_y > max_y) { max_y = element_y; }
+    }
+    min_x = min_x + 300;
+    max_x = max_x - 300;
 
-    setnamed("OOSC_RO_LB", "x position", getnamed("RO_LB", "x position") + 100);
-    setnamed("OOSC_RO_LB", "y position", getnamed("RO_LB", "y position") + 100);
-    rotateelement("OOSC_RO_LB");
-    setnamed("OSA_RO_LB", "x position", getnamed("RO_LB", "x position") + 100);
-    setnamed("OSA_RO_LB", "y position", getnamed("RO_LB", "y position") + 200);
-    rotateelement("OSA_RO_LB");
-    setnamed("OPM_RO_LB", "x position", getnamed("RO_LB", "x position") + 100);
-    setnamed("OPM_RO_LB", "y position", getnamed("RO_LB", "y position") + 300);
-    rotateelement("OPM_RO_LB");
+    up_element = {{"RO_LT", 50}, {"DC_T_1", -50}, {"DC_T_2", -150}, {"DC_T_3", 85}, {"DC_T_4", 185}, {"RO_RT", -50}};
+    down_element = {{"RO_LB", 50}, {"DC_B_1", -50}, {"DC_B_2", -150}, {"DC_B_3", 85}, {"DC_B_4", 185}, {"RO_RB", -50}};
+    left_element = {{"OPS_L_1", -50}, {"OPS_L_2", 50}};
+    right_element = {{"WAB_R_1", -50}, {"WAB_R_2", 85}};
+    if (waveguides) {
+        temp = cell(length(up_element) + 4);
+        for (i=1:length(up_element)) { temp{i} = up_element{i}; }
+        temp{length(up_element) + 1} = {"SW_TL_1", -50};
+        temp{length(up_element) + 2} = {"SW_TL_2", 85};
+        temp{length(up_element) + 3} = {"SW_TR_1", -50};
+        temp{length(up_element) + 4} = {"SW_TR_2", 85};
+        up_element = temp;
 
-    setnamed("OOSC_RO_RB", "x position", getnamed("RO_RB", "x position") - 100);
-    setnamed("OOSC_RO_RB", "y position", getnamed("RO_RB", "y position") + 100);
-    rotateelement("OOSC_RO_RB");
-    setnamed("OSA_RO_RB", "x position", getnamed("RO_RB", "x position") - 100);
-    setnamed("OSA_RO_RB", "y position", getnamed("RO_RB", "y position") + 200);
-    rotateelement("OSA_RO_RB");
-    setnamed("OPM_RO_RB", "x position", getnamed("RO_RB", "x position") - 100);
-    setnamed("OPM_RO_RB", "y position", getnamed("RO_RB", "y position") + 300);
-    rotateelement("OPM_RO_RB");
+        temp = cell(length(down_element) + 4);
+        for (i=1:length(down_element)) { temp{i} = down_element{i}; }
+        temp{length(down_element) + 1} = {"SW_BL_1", -50};
+        temp{length(down_element) + 2} = {"SW_BL_2", 85};
+        temp{length(down_element) + 3} = {"SW_BR_1", -50};
+        temp{length(down_element) + 4} = {"SW_BR_2", 85};
+        down_element = temp;
+    }
 
-    setnamed("OOSC_DC_T_LT", "x position", getnamed("DC_T", "x position") - 50);
-    setnamed("OOSC_DC_T_LT", "y position", getnamed("DC_T", "y position") - 103);
-    rotateelement("OOSC_DC_T_LT"); rotateelement("OOSC_DC_T_LT"); rotateelement("OOSC_DC_T_LT");
-    setnamed("OSA_DC_T_LT", "x position", getnamed("DC_T", "x position") - 50);
-    setnamed("OSA_DC_T_LT", "y position", getnamed("DC_T", "y position") - 203);
-    rotateelement("OSA_DC_T_LT"); rotateelement("OSA_DC_T_LT"); rotateelement("OSA_DC_T_LT");
-    setnamed("OPM_DC_T_LT", "x position", getnamed("DC_T", "x position") - 50);
-    setnamed("OPM_DC_T_LT", "y position", getnamed("DC_T", "y position") - 303);
-    rotateelement("OPM_DC_T_LT"); rotateelement("OPM_DC_T_LT"); rotateelement("OPM_DC_T_LT");
+    for (i=1:length(up_element)) {
+        port_element = up_element{i}{1};
+        element = port_element;
+        try {
+            port_num = str2num(substring(port_element, length(port_element), 1));
+            element = substring(port_element, 1, length(port_element) - 2);
+        } catch (error_msg);
+        offset = up_element{i}{2};
+        setnamed("OOSC_" + port_element, "x position", offset + getnamed(element, "x position"));
+        setnamed("OOSC_" + port_element, "y position", min_y - 100);
+        rotateelement("OOSC_" + port_element); rotateelement("OOSC_" + port_element); rotateelement("OOSC_" + port_element);
+        setnamed("OSA_" + port_element, "x position", offset + getnamed(element, "x position"));
+        setnamed("OSA_" + port_element, "y position", min_y - 200);
+        rotateelement("OSA_" + port_element); rotateelement("OSA_" + port_element); rotateelement("OSA_" + port_element);
+        setnamed("OPM_" + port_element, "x position", offset + getnamed(element, "x position"));
+        setnamed("OPM_" + port_element, "y position", min_y - 300);
+        rotateelement("OPM_" + port_element); rotateelement("OPM_" + port_element); rotateelement("OPM_" + port_element);
+    }
 
-    setnamed("OOSC_DC_T_RT", "x position", getnamed("DC_T", "x position") + 100);
-    setnamed("OOSC_DC_T_RT", "y position", getnamed("DC_T", "y position") - 103);
-    rotateelement("OOSC_DC_T_RT"); rotateelement("OOSC_DC_T_RT"); rotateelement("OOSC_DC_T_RT");
-    setnamed("OSA_DC_T_RT", "x position", getnamed("DC_T", "x position") + 100);
-    setnamed("OSA_DC_T_RT", "y position", getnamed("DC_T", "y position") - 203);
-    rotateelement("OSA_DC_T_RT"); rotateelement("OSA_DC_T_RT"); rotateelement("OSA_DC_T_RT");
-    setnamed("OPM_DC_T_RT", "x position", getnamed("DC_T", "x position") + 100);
-    setnamed("OPM_DC_T_RT", "y position", getnamed("DC_T", "y position") - 303);
-    rotateelement("OPM_DC_T_RT"); rotateelement("OPM_DC_T_RT"); rotateelement("OPM_DC_T_RT");
+    for (i=1:length(down_element)) {
+        port_element = down_element{i}{1};
+        element = port_element;
+        try {
+            port_num = str2num(substring(port_element, length(port_element), 1));
+            element = substring(port_element, 1, length(port_element) - 2);
+        } catch (error_msg);
+        offset = down_element{i}{2};
+        setnamed("OOSC_" + port_element, "x position", offset + getnamed(element, "x position"));
+        setnamed("OOSC_" + port_element, "y position", max_y + 100);
+        rotateelement("OOSC_" + port_element);
+        setnamed("OSA_" + port_element, "x position", offset + getnamed(element, "x position"));
+        setnamed("OSA_" + port_element, "y position", max_y + 200);
+        rotateelement("OSA_" + port_element);
+        setnamed("OPM_" + port_element, "x position", offset + getnamed(element, "x position"));
+        setnamed("OPM_" + port_element, "y position", max_y + 300);
+        rotateelement("OPM_" + port_element);
+    }
 
-    setnamed("OOSC_DC_T_LB", "x position", getnamed("DC_T", "x position") - 150);
-    setnamed("OOSC_DC_T_LB", "y position", getnamed("DC_T", "y position") - 103);
-    rotateelement("OOSC_DC_T_LB"); rotateelement("OOSC_DC_T_LB"); rotateelement("OOSC_DC_T_LB");
-    setnamed("OSA_DC_T_LB", "x position", getnamed("DC_T", "x position") - 150);
-    setnamed("OSA_DC_T_LB", "y position", getnamed("DC_T", "y position") - 203);
-    rotateelement("OSA_DC_T_LB"); rotateelement("OSA_DC_T_LB"); rotateelement("OSA_DC_T_LB");
-    setnamed("OPM_DC_T_LB", "x position", getnamed("DC_T", "x position") - 150);
-    setnamed("OPM_DC_T_LB", "y position", getnamed("DC_T", "y position") - 303);
-    rotateelement("OPM_DC_T_LB"); rotateelement("OPM_DC_T_LB"); rotateelement("OPM_DC_T_LB");
+    for (i=1:length(left_element)) {
+        port_element = left_element{i}{1};
+        element = port_element;
+        try {
+            port_num = str2num(substring(port_element, length(port_element), 1));
+            element = substring(port_element, 1, length(port_element) - 2);
+        } catch (error_msg);
+        offset = left_element{i}{2};
+        setnamed("OOSC_" + port_element, "x position", min_x - 100);
+        setnamed("OOSC_" + port_element, "y position", offset + getnamed(element, "y position"));
+        rotateelement("OOSC_" + port_element); rotateelement("OOSC_" + port_element);
+        setnamed("OSA_" + port_element, "x position", min_x - 200);
+        setnamed("OSA_" + port_element, "y position", offset + getnamed(element, "y position"));
+        rotateelement("OSA_" + port_element); rotateelement("OSA_" + port_element);
+        setnamed("OPM_" + port_element, "x position", min_x - 300);
+        setnamed("OPM_" + port_element, "y position", offset + getnamed(element, "y position"));
+        rotateelement("OPM_" + port_element); rotateelement("OPM_" + port_element);
+    }
 
-    setnamed("OOSC_DC_T_RB", "x position", getnamed("DC_T", "x position") + 200);
-    setnamed("OOSC_DC_T_RB", "y position", getnamed("DC_T", "y position") - 103);
-    rotateelement("OOSC_DC_T_RB"); rotateelement("OOSC_DC_T_RB"); rotateelement("OOSC_DC_T_RB");
-    setnamed("OSA_DC_T_RB", "x position", getnamed("DC_T", "x position") + 200);
-    setnamed("OSA_DC_T_RB", "y position", getnamed("DC_T", "y position") - 203);
-    rotateelement("OSA_DC_T_RB"); rotateelement("OSA_DC_T_RB"); rotateelement("OSA_DC_T_RB");
-    setnamed("OPM_DC_T_RB", "x position", getnamed("DC_T", "x position") + 200);
-    setnamed("OPM_DC_T_RB", "y position", getnamed("DC_T", "y position") - 303);
-    rotateelement("OPM_DC_T_RB"); rotateelement("OPM_DC_T_RB"); rotateelement("OPM_DC_T_RB");
-
-    setnamed("OOSC_DC_B_LT", "x position", getnamed("DC_B", "x position") - 50);
-    setnamed("OOSC_DC_B_LT", "y position", getnamed("DC_B", "y position") + 135);
-    rotateelement("OOSC_DC_B_LT");
-    setnamed("OSA_DC_B_LT", "x position", getnamed("DC_B", "x position") - 50);
-    setnamed("OSA_DC_B_LT", "y position", getnamed("DC_B", "y position") + 235);
-    rotateelement("OSA_DC_B_LT");
-    setnamed("OPM_DC_B_LT", "x position", getnamed("DC_B", "x position") - 50);
-    setnamed("OPM_DC_B_LT", "y position", getnamed("DC_B", "y position") + 335);
-    rotateelement("OPM_DC_B_LT");
-
-    setnamed("OOSC_DC_B_RT", "x position", getnamed("DC_B", "x position") + 100);
-    setnamed("OOSC_DC_B_RT", "y position", getnamed("DC_B", "y position") + 135);
-    rotateelement("OOSC_DC_B_RT");
-    setnamed("OSA_DC_B_RT", "x position", getnamed("DC_B", "x position") + 100);
-    setnamed("OSA_DC_B_RT", "y position", getnamed("DC_B", "y position") + 235);
-    rotateelement("OSA_DC_B_RT");
-    setnamed("OPM_DC_B_RT", "x position", getnamed("DC_B", "x position") + 100);
-    setnamed("OPM_DC_B_RT", "y position", getnamed("DC_B", "y position") + 335);
-    rotateelement("OPM_DC_B_RT");
-
-    setnamed("OOSC_DC_B_LB", "x position", getnamed("DC_B", "x position") - 150);
-    setnamed("OOSC_DC_B_LB", "y position", getnamed("DC_B", "y position") + 135);
-    rotateelement("OOSC_DC_B_LB");
-    setnamed("OSA_DC_B_LB", "x position", getnamed("DC_B", "x position") - 150);
-    setnamed("OSA_DC_B_LB", "y position", getnamed("DC_B", "y position") + 235);
-    rotateelement("OSA_DC_B_LB");
-    setnamed("OPM_DC_B_LB", "x position", getnamed("DC_B", "x position") - 150);
-    setnamed("OPM_DC_B_LB", "y position", getnamed("DC_B", "y position") + 335);
-    rotateelement("OPM_DC_B_LB");
-
-    setnamed("OOSC_DC_B_RB", "x position", getnamed("DC_B", "x position") + 200);
-    setnamed("OOSC_DC_B_RB", "y position", getnamed("DC_B", "y position") + 135);
-    rotateelement("OOSC_DC_B_RB");
-    setnamed("OSA_DC_B_RB", "x position", getnamed("DC_B", "x position") + 200);
-    setnamed("OSA_DC_B_RB", "y position", getnamed("DC_B", "y position") + 235);
-    rotateelement("OSA_DC_B_RB");
-    setnamed("OPM_DC_B_RB", "x position", getnamed("DC_B", "x position") + 200);
-    setnamed("OPM_DC_B_RB", "y position", getnamed("DC_B", "y position") + 335);
-    rotateelement("OPM_DC_B_RB");
-
-    setnamed("OOSC_OPS_L_T", "x position", getnamed("OPS_L", "x position") - 100);
-    setnamed("OOSC_OPS_L_T", "y position", getnamed("OPS_L", "y position") - 75);
-    flipelement("OOSC_OPS_L_T");
-    setnamed("OSA_OPS_L_T", "x position", getnamed("OPS_L", "x position") - 200);
-    setnamed("OSA_OPS_L_T", "y position", getnamed("OPS_L", "y position") - 75);
-    flipelement("OSA_OPS_L_T");
-    setnamed("OPM_OPS_L_T", "x position", getnamed("OPS_L", "x position") - 300);
-    setnamed("OPM_OPS_L_T", "y position", getnamed("OPS_L", "y position") - 75);
-    flipelement("OPM_OPS_L_T");
-
-    setnamed("OOSC_OPS_L_B", "x position", getnamed("OPS_L", "x position") - 100);
-    setnamed("OOSC_OPS_L_B", "y position", getnamed("OPS_L", "y position") + 75);
-    flipelement("OOSC_OPS_L_B");
-    setnamed("OSA_OPS_L_B", "x position", getnamed("OPS_L", "x position") - 200);
-    setnamed("OSA_OPS_L_B", "y position", getnamed("OPS_L", "y position") + 75);
-    flipelement("OSA_OPS_L_B");
-    setnamed("OPM_OPS_L_B", "x position", getnamed("OPS_L", "x position") - 300);
-    setnamed("OPM_OPS_L_B", "y position", getnamed("OPS_L", "y position") + 75);
-    flipelement("OPM_OPS_L_B");
-
-    setnamed("OOSC_WAB_R_T", "x position", getnamed("WAB_R", "x position") + 100);
-    setnamed("OOSC_WAB_R_T", "y position", getnamed("WAB_R", "y position") - 75);
-    setnamed("OSA_WAB_R_T", "x position", getnamed("WAB_R", "x position") + 200);
-    setnamed("OSA_WAB_R_T", "y position", getnamed("WAB_R", "y position") - 75);
-    setnamed("OPM_WAB_R_T", "x position", getnamed("WAB_R", "x position") + 300);
-    setnamed("OPM_WAB_R_T", "y position", getnamed("WAB_R", "y position") - 75);
-
-    setnamed("OOSC_WAB_R_B", "x position", getnamed("WAB_R", "x position") + 100);
-    setnamed("OOSC_WAB_R_B", "y position", getnamed("WAB_R", "y position") + 100);
-    setnamed("OSA_WAB_R_B", "x position", getnamed("WAB_R", "x position") + 200);
-    setnamed("OSA_WAB_R_B", "y position", getnamed("WAB_R", "y position") + 100);
-    setnamed("OPM_WAB_R_B", "x position", getnamed("WAB_R", "x position") + 300);
-    setnamed("OPM_WAB_R_B", "y position", getnamed("WAB_R", "y position") + 100);
+    for (i=1:length(right_element)) {
+        port_element = right_element{i}{1};
+        element = port_element;
+        try {
+            port_num = str2num(substring(port_element, length(port_element), 1));
+            element = substring(port_element, 1, length(port_element) - 2);
+        } catch (error_msg);
+        offset = right_element{i}{2};
+        setnamed("OOSC_" + port_element, "x position", max_x + 100);
+        setnamed("OOSC_" + port_element, "y position", offset + getnamed(element, "y position"));
+        setnamed("OSA_" + port_element, "x position", max_x + 200);
+        setnamed("OSA_" + port_element, "y position", offset + getnamed(element, "y position"));
+        setnamed("OPM_" + port_element, "x position", max_x + 300);
+        setnamed("OPM_" + port_element, "y position", offset + getnamed(element, "y position"));
+    }
 
     # Hiding Analyzers Annotations
     for (i = 1:length(optical_analysers_ports)) {
