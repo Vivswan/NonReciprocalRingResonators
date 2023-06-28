@@ -84,13 +84,13 @@ setexpression("WAB_R", "radius", "radius");
 setnamed("WAB_R", "angle", 4*pi);
 
 # Adding Element Connections
-connect("RO_LT", "port", "DC_T", "port 1");
-connect("DC_T", "port 3", "RO_RT", "port");
+connect("DC_T", "port 1", "RO_LT", "port");
 connect("DC_T", "port 2", "OPS_L", "port 1");
+connect("DC_T", "port 3", "RO_RT", "port");
 connect("DC_T", "port 4", "WAB_R", "port 1");
 connect("DC_B", "port 1", "OPS_L", "port 2");
+connect("DC_B", "port 2", "RO_LB", "port");
 connect("DC_B", "port 3", "WAB_R", "port 2");
-connect("RO_LB", "port", "DC_B", "port 2");
 connect("DC_B", "port 4", "RO_RB", "port");
 
 # Array of Elements

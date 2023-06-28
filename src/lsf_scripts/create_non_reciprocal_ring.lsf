@@ -49,9 +49,9 @@ set("name", "DC_T");
 addelement("Waveguide Coupler");
 set("name", "DC_B");
 addelement("Optical Phase Shift");
-set("name", "OPS_U");
+set("name", "OPS_CW");
 addelement("Optical Phase Shift");
-set("name", "OPS_D");
+set("name", "OPS_CCW");
 addelement("Optical Circulator");
 set("name", "CIR_T");
 addelement("Optical Circulator");
@@ -73,12 +73,12 @@ setnamed("RO_RT", "y position", getnamed("RO_LT", "y position"));
 setnamed("CIR_T", "x position", x_off + 184);
 setnamed("CIR_T", "y position", y_off + 200);
 rotateelement("CIR_T");
-setnamed("OPS_U", "x position", x_off + 50);
-setnamed("OPS_U", "y position", y_off + 400);
-rotateelement("OPS_U"); flipelement("OPS_U");
-setnamed("OPS_D", "x position", x_off + 200);
-setnamed("OPS_D", "y position", y_off + 400);
-rotateelement("OPS_D");
+setnamed("OPS_CW", "x position", x_off + 50);
+setnamed("OPS_CW", "y position", y_off + 400);
+rotateelement("OPS_CW"); flipelement("OPS_CW");
+setnamed("OPS_CCW", "x position", x_off + 200);
+setnamed("OPS_CCW", "y position", y_off + 400);
+rotateelement("OPS_CCW");
 setnamed("CIR_B", "x position", x_off + 184);
 setnamed("CIR_B", "y position", y_off + 600);
 rotateelement("CIR_B");
@@ -94,8 +94,8 @@ setnamed("RO_RB", "y position", getnamed("RO_LB", "y position"));
 flipelement("RO_LB");
 
 # Setting Element Properties
-setexpression("OPS_U", "phase shift", "phase");
-setexpression("OPS_D", "phase shift", "-phase");
+setexpression("OPS_CW", "phase shift", "phase");
+setexpression("OPS_CCW", "phase shift", "-phase");
 setexpression("WAB_R", "radius", "radius");
 setnamed("CIR_T", "insertion loss", 1e-100);
 setnamed("CIR_B", "insertion loss", 1e-100);
@@ -103,8 +103,8 @@ setnamed("CIR_T", "isolation", 1e100);
 setnamed("CIR_B", "isolation", 1e100);
 setnamed("CIR_T", "return loss", 1e100);
 setnamed("CIR_B", "return loss", 1e100);
-setnamed("OPS_U", "configuration", "unidirectional");
-setnamed("OPS_D", "configuration", "unidirectional");
+setnamed("OPS_CW", "configuration", "unidirectional");
+setnamed("OPS_CCW", "configuration", "unidirectional");
 setnamed("WAB_R", "angle", 4*pi);
 
 # Adding Element Connections
@@ -113,16 +113,16 @@ connect("DC_T", "port 3", "RO_RT", "port");
 connect("DC_T", "port 4", "WAB_R", "port 1");
 connect("WAB_R", "port 2", "DC_B", "port 3");
 connect("DC_B", "port 1", "CIR_B", "port 2");
-connect("CIR_B", "port 3", "OPS_U", "input");
-connect("OPS_U", "output", "CIR_T", "port 3");
+connect("CIR_B", "port 3", "OPS_CW", "input");
+connect("OPS_CW", "output", "CIR_T", "port 3");
 connect("CIR_T", "port 1", "DC_T", "port 2");
-connect("CIR_T", "port 2", "OPS_D", "input");
-connect("OPS_D", "output", "CIR_B", "port 1");
+connect("CIR_T", "port 2", "OPS_CCW", "input");
+connect("OPS_CCW", "output", "CIR_B", "port 1");
 connect("RO_LB", "port", "DC_B", "port 2");
 connect("DC_B", "port 4", "RO_RB", "port");
 
 # Array of Elements
-multiper_elements = {"RO_LT", "RO_LB", "RO_RT", "RO_RB", "DC_T", "DC_B", "OPS_U", "OPS_D", "CIR_T", "CIR_B", "WAB_R"};
+multiper_elements = {"RO_LT", "RO_LB", "RO_RT", "RO_RB", "DC_T", "DC_B", "OPS_CW", "OPS_CCW", "CIR_T", "CIR_B", "WAB_R"};
 
 # Hiding Element Annotations
 for (i = 1:length(multiper_elements)) { setnamed(multiper_elements{i}, "annotate", annotate_all >= 3); }
@@ -130,7 +130,7 @@ for (i = 1:length(multiper_elements)) { setnamed(multiper_elements{i}, "annotate
 # For Recording/Degugging
 if (record_all) {
     # Adding Analyzers
-    optical_analysers_ports = {"RO_LT", "RO_LB", "RO_RT", "RO_RB", "DC_T_LT", "DC_T_RT", "DC_T_LB", "DC_T_RB", "DC_B_LT", "DC_B_RT", "DC_B_LB", "DC_B_RB", "OPS_U", "OPS_D", "CIR_T_T", "CIR_T_L", "CIR_T_B", "CIR_B_T", "CIR_B_L", "CIR_B_B", "WAB_R_T", "WAB_R_B"};
+    optical_analysers_ports = {"RO_LT", "RO_LB", "RO_RT", "RO_RB", "DC_T_LT", "DC_T_RT", "DC_T_LB", "DC_T_RB", "DC_B_LT", "DC_B_RT", "DC_B_LB", "DC_B_RB", "OPS_CW", "OPS_CCW", "CIR_T_T", "CIR_T_L", "CIR_T_B", "CIR_B_T", "CIR_B_L", "CIR_B_B", "WAB_R_T", "WAB_R_B"};
 
     for (i = 1:length(optical_analysers_ports)) {
         addelement("Optical Oscilloscope");
@@ -179,12 +179,12 @@ if (record_all) {
     connect("DC_B", "port 4", "OOSC_DC_B_RB", "input");
     connect("DC_B", "port 4", "OSA_DC_B_RB", "input");
     connect("DC_B", "port 4", "OPM_DC_B_RB", "input");
-    connect("OPS_U", "output", "OOSC_OPS_U", "input");
-    connect("OPS_U", "output", "OSA_OPS_U", "input");
-    connect("OPS_U", "output", "OPM_OPS_U", "input");
-    connect("OPS_D", "output", "OOSC_OPS_D", "input");
-    connect("OPS_D", "output", "OSA_OPS_D", "input");
-    connect("OPS_D", "output", "OPM_OPS_D", "input");
+    connect("OPS_CW", "output", "OOSC_OPS_CW", "input");
+    connect("OPS_CW", "output", "OSA_OPS_CW", "input");
+    connect("OPS_CW", "output", "OPM_OPS_CW", "input");
+    connect("OPS_CCW", "output", "OOSC_OPS_CCW", "input");
+    connect("OPS_CCW", "output", "OSA_OPS_CCW", "input");
+    connect("OPS_CCW", "output", "OPM_OPS_CCW", "input");
     connect("CIR_T", "port 1", "OOSC_CIR_T_T", "input");
     connect("CIR_T", "port 1", "OSA_CIR_T_T", "input");
     connect("CIR_T", "port 1", "OPM_CIR_T_T", "input");
@@ -331,25 +331,25 @@ if (record_all) {
     setnamed("OPM_DC_B_RB", "y position", getnamed("DC_B", "y position") + 335);
     rotateelement("OPM_DC_B_RB");
 
-    setnamed("OOSC_OPS_U", "x position", getnamed("OPS_U", "x position") - 150);
-    setnamed("OOSC_OPS_U", "y position", getnamed("OPS_U", "y position") - 55);
-    flipelement("OOSC_OPS_U");
-    setnamed("OSA_OPS_U", "x position", getnamed("OPS_U", "x position") - 250);
-    setnamed("OSA_OPS_U", "y position", getnamed("OPS_U", "y position") - 55);
-    flipelement("OSA_OPS_U");
-    setnamed("OPM_OPS_U", "x position", getnamed("OPS_U", "x position") - 350);
-    setnamed("OPM_OPS_U", "y position", getnamed("OPS_U", "y position") - 55);
-    flipelement("OPM_OPS_U");
+    setnamed("OOSC_OPS_CW", "x position", getnamed("OPS_CW", "x position") - 150);
+    setnamed("OOSC_OPS_CW", "y position", getnamed("OPS_CW", "y position") - 55);
+    flipelement("OOSC_OPS_CW");
+    setnamed("OSA_OPS_CW", "x position", getnamed("OPS_CW", "x position") - 250);
+    setnamed("OSA_OPS_CW", "y position", getnamed("OPS_CW", "y position") - 55);
+    flipelement("OSA_OPS_CW");
+    setnamed("OPM_OPS_CW", "x position", getnamed("OPS_CW", "x position") - 350);
+    setnamed("OPM_OPS_CW", "y position", getnamed("OPS_CW", "y position") - 55);
+    flipelement("OPM_OPS_CW");
 
-    setnamed("OOSC_OPS_D", "x position", getnamed("OPS_D", "x position") - 300);
-    setnamed("OOSC_OPS_D", "y position", getnamed("OPS_D", "y position") + 55);
-    flipelement("OOSC_OPS_D");
-    setnamed("OSA_OPS_D", "x position", getnamed("OPS_D", "x position") - 400);
-    setnamed("OSA_OPS_D", "y position", getnamed("OPS_D", "y position") + 55);
-    flipelement("OSA_OPS_D");
-    setnamed("OPM_OPS_D", "x position", getnamed("OPS_D", "x position") - 500);
-    setnamed("OPM_OPS_D", "y position", getnamed("OPS_D", "y position") + 55);
-    flipelement("OPM_OPS_D");
+    setnamed("OOSC_OPS_CCW", "x position", getnamed("OPS_CCW", "x position") - 300);
+    setnamed("OOSC_OPS_CCW", "y position", getnamed("OPS_CCW", "y position") + 55);
+    flipelement("OOSC_OPS_CCW");
+    setnamed("OSA_OPS_CCW", "x position", getnamed("OPS_CCW", "x position") - 400);
+    setnamed("OSA_OPS_CCW", "y position", getnamed("OPS_CCW", "y position") + 55);
+    flipelement("OSA_OPS_CCW");
+    setnamed("OPM_OPS_CCW", "x position", getnamed("OPS_CCW", "x position") - 500);
+    setnamed("OPM_OPS_CCW", "y position", getnamed("OPS_CCW", "y position") + 55);
+    flipelement("OPM_OPS_CCW");
 
     setnamed("OOSC_CIR_T_T", "x position", getnamed("CIR_T", "x position") - 283);
     setnamed("OOSC_CIR_T_T", "y position", getnamed("CIR_T", "y position") - 75);
