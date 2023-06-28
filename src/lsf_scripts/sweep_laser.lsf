@@ -34,10 +34,10 @@ setnamed("laser", "start frequency", 197.25e12);
 setnamed("laser", "number of points", 1e4);
 setnamed("laser", "power", pwr);
 setnamed("laser", "number of input ports", 3);
+setnamed("laser", "analysis type", "impulse response");
 setnamed("laser", "plot kind", "wavelength");
 setnamed("laser", "angle unit", "rad");
 setnamed("laser", "peak analysis", "disable");
-setnamed("laser", "multithreading", "automatic");
 
 # Hiding Element Annotations
 setnamed("laser", "annotate", annotate_all >= 1);
