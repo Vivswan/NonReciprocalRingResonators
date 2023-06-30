@@ -9,7 +9,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     
     lambda_from = c/190.1e12;
     lambda_till = c/197.25e12;
-    pwr = 1e-3;
+    laser_power = 1e-3;
     
     record_all = true;
     annotate_all = 2;
@@ -29,10 +29,10 @@ setnamed("laser", "y position", 0);
 
 # Setting Element Properties
 setnamed("laser", "input parameter", "start and stop");
-setnamed("laser", "start frequency", 190.1e12);
-setnamed("laser", "start frequency", 197.25e12);
+setnamed("laser", "start frequency", c/1500e-9);
+setnamed("laser", "stop frequency", c/1600e-9);
 setnamed("laser", "number of points", 1e4);
-setnamed("laser", "power", pwr);
+setnamed("laser", "power", laser_power);
 setnamed("laser", "number of input ports", 4);
 setnamed("laser", "analysis type", "impulse response");
 setnamed("laser", "plot kind", "wavelength");
