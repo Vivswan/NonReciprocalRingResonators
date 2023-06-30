@@ -31,7 +31,7 @@ setnamed("laser", "y position", 0);
 setnamed("laser", "input parameter", "start and stop");
 setnamed("laser", "start frequency", c/1500e-9);
 setnamed("laser", "stop frequency", c/1600e-9);
-setnamed("laser", "number of points", 5e4);
+setnamed("laser", "number of points", 1e4);
 setnamed("laser", "power", laser_power);
 setnamed("laser", "number of input ports", 4);
 setnamed("laser", "analysis type", "impulse response");

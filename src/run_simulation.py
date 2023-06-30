@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import itertools
 import json
 from hashlib import sha256
@@ -13,13 +14,18 @@ from z_outputs import get_output_path
 
 SETUP_SCRIPT = r'''
     num_resonators = {num_resonators};
-    center_wavelength = {wavelength};
-    wavelength_gap = {wavelength_gap};
+    center_wavelength = {wavelength} * 1e-9; # m
+    wavelength_gap = {wavelength_gap} * 1e-9; # m
     
-    laser_power = {power};
-    insertion_loss = {insertion_loss};
-    n_eff = {n_eff};
-    n_grp = {n_grp};
+    laser_power = {power} * 1e-3; # W
+    wg_insertion_loss = {wg_insertion_loss}; # dB/cm
+    dc_insertion_loss = {dc_insertion_loss}; # dB
+    bend_insertion_loss = {bend_insertion_loss}; # dB/2pi
+    straight_waveguide_length = {straight_waveguide_length} * 1e-6; # m
+    straight_n_eff = {straight_n_eff};
+    straight_n_grp = {straight_n_grp};
+    bend_n_eff = {bend_n_eff};
+    bend_n_grp = {bend_n_grp};
     
     # -1 for non-reciprocal, 0 for reciprocal and +1 for full-reciprocal
     reciprocal = {reciprocal};
@@ -43,16 +49,21 @@ def _main(*args, **kwargs):
         '-c', '--components', type=str, nargs='+', required=True,
         help='Components to sweep, format: "[r|c|s]:<component_name>:<parameter_name>:<min>:<max>:<num>"'
     )
-    parsed_args.add_argument('-n', '--num-resonators', type=int, default=3, help='Number of resonators')
-    parsed_args.add_argument('-w', '--wavelength', type=float, default=1550, help='Center wavelength (nm)')
-    parsed_args.add_argument('-g', '--wavelength-gap', type=float, default=100, help='Wavelength gap (nm)')
-    parsed_args.add_argument('-p', '--laser-power', type=float, default=0.001, help='Laser Power (W)')
-    parsed_args.add_argument('-i', '--insertion-loss', type=float, default=3, help='Insertion loss (dB/cm)')
-    parsed_args.add_argument('-e', '--n-eff', type=float, default=2.262, help='Effective index')
-    parsed_args.add_argument('-r', '--n-grp', type=float, default=3.484, help='Group index')
-    parsed_args.add_argument('-o', '--reciprocal', type=int, default=0, help='Reciprocal (0, 1 or -1)')
-    parsed_args.add_argument('-l', '--laser-sweep', action="store_true", help='Sweep wavelength')
-    parsed_args.add_argument('-a', '--waveguides', action="store_true", help='with waveguides')
+    parsed_args.add_argument('-n', '--num-resonators', type=int, required=True, help='Number of resonators')
+    parsed_args.add_argument('--wavelength', type=float, default=1550, help='Center wavelength (nm)')
+    parsed_args.add_argument('--wavelength-gap', type=float, default=100, help='Wavelength gap (nm)')
+    parsed_args.add_argument('--laser-power', type=float, default=1, help='Laser Power (mW)')
+    parsed_args.add_argument('--wg-insertion-loss', type=float, default=3, help='Waveguide Insertion loss (dB/cm)')
+    parsed_args.add_argument('--dc-insertion-loss', type=float, default=0.5, help='DC Insertion loss (dB)')
+    parsed_args.add_argument('--bend-insertion-loss', type=float, default=0.04, help='Bend Insertion loss (dB/2pi)')
+    parsed_args.add_argument('--straight-waveguide-length', type=float, default=100, help='Straight waveguide (nm)')
+    parsed_args.add_argument('--straight-n-eff', type=float, default=2.262, help='Straight n_eff')
+    parsed_args.add_argument('--straight-n-grp', type=float, default=3.484, help='Straight n_grp')
+    parsed_args.add_argument('--bend-n-eff', type=float, default=2.262, help='Bend n_eff')
+    parsed_args.add_argument('--bend-n-grp', type=float, default=3.484, help='Bend n_grp')
+    parsed_args.add_argument('--reciprocal', type=int, required=True, help='Reciprocal (0, 1 or -1)')
+    parsed_args.add_argument('--laser-sweep', action="store_true", help='Sweep wavelength')
+    parsed_args.add_argument('--waveguides', action="store_true", help='with waveguides')
     parsed_args.add_argument('-r', '--run', action="store_true", help='Run simulation')
     parsed_args.add_argument('-l', '--lsf', action="store_true", help='Create LSF script')
     parsed_args.add_argument('-g', '--gui', action="store_true", help='Run with GUI, --run only')
@@ -65,21 +76,32 @@ def _main(*args, **kwargs):
     if not parsed_args.run and not parsed_args.lsf:
         raise ValueError('Must run either run or lsf')
 
-    hash_args = {
-        'components': sorted([i.split(":")[:3] for i in parsed_args.components]),
-        'num_resonators': parsed_args.num_resonators,
-        'wavelength': parsed_args.wavelength,
-        'wavelength_gap': parsed_args.wavelength_gap,
-        'power': parsed_args.power,
-        'insertion_loss': parsed_args.insertion_loss,
-        'n_eff': parsed_args.n_eff,
-        'n_grp': parsed_args.n_grp,
-        'reciprocal': parsed_args.reciprocal,
-        'laser_sweep': parsed_args.laser_sweep,
-        'waveguides': parsed_args.waveguides,
-    }
+    if parsed_args.num_resonators < 1:
+        raise ValueError('Number of resonators must be positive')
+
+    if parsed_args.reciprocal not in [-1, 0, 1]:
+        raise ValueError('Reciprocal must be -1, 0 or 1')
+
+    if parsed_args.wavelength_gap <= 0:
+        raise ValueError('Wavelength gap must be positive')
+
+    hash_args = copy.deepcopy(vars(parsed_args))
+    # hash_args["components"] = sorted([i.split(":")[:3] for i in parsed_args.components])
+    hash_args.pop('num_resonators')
+    hash_args.pop('laser_sweep')
+    hash_args.pop('waveguides')
+    hash_args.pop('run')
+    hash_args.pop('lsf')
+    hash_args.pop('gui')
+    hash_args.pop('slurm')
     hash_name = sha256(json.dumps(hash_args, sort_keys=True).encode("utf-8")).hexdigest()[:HASH_LENGTH]
-    script_name = f'simulation_{hash_name}'
+    script_name = (
+        f'simulation_'
+        f'{int(parsed_args.num_resonators)}'
+        f'{int(parsed_args.laser_sweep)}'
+        f'{int(parsed_args.waveguides)}'
+        f'_{hash_name}'
+    )
     print(f"Script name: {script_name}")
 
     names_file = get_output_path() / f"names.json"
