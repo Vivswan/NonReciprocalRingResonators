@@ -202,18 +202,25 @@ if (waveguides) {
     connect("DC_T", "port 1", "SW_TL", "port 2");
     connect("SW_TL", "port 1", "RO_LT", "port");
 } else { connect("DC_T", "port 1", "RO_LT", "port"); }
-connect("DC_T", "port 2", "OPS_L", "port 1");
 if (waveguides) {
     connect("DC_T", "port 3", "SW_TR", "port 1");
     connect("SW_TR", "port 2", "RO_RT", "port");
 } else { connect("DC_T", "port 3", "RO_RT", "port"); }
 connect("DC_T", "port 4", "WAB_R", "port 1");
-connect("DC_B", "port 1", "OPS_L", "port 2");
+if (!full_reciprocal) {
+    connect("WAB_R", "port 2", "DC_B", "port 3");
+    connect("DC_B", "port 1", "OPS_L", "port 2");
+} else {
+    connect("WAB_R", "port 2", "OPS_R", "port 1");
+    connect("OPS_R", "port 2", "DC_B", "port 3");
+    connect("DC_B", "port 1", "WAB_L", "port 2");
+    connect("WAB_L", "port 1", "OPS_L", "port 2");
+}
+connect("OPS_L", "port 1", "DC_T", "port 2");
 if (waveguides) {
     connect("DC_B", "port 2", "SW_BL", "port 2");
     connect("SW_BL", "port 1", "RO_LB", "port");
 } else { connect("DC_B", "port 2", "RO_LB", "port"); }
-connect("DC_B", "port 3", "WAB_R", "port 2");
 if (waveguides) {
     connect("DC_B", "port 4", "SW_BR", "port 1");
     connect("SW_BR", "port 2", "RO_RB", "port");
