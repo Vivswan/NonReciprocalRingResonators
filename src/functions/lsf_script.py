@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from typing import Optional, Union, Dict
 
+from src.compile_data import get_compile_data_path
 from src.functions.param_to_combinations import param_to_combinations
 from src.functions.process_scripts import process_scripts
 from src.lsf_scripts import get_lsf_scripts_path
@@ -57,7 +58,7 @@ def create_lsf_script_sweep(
     data_location.mkdir(exist_ok=True)
     location_str = str(location).replace("\\", "/")
     data_location_str = str(data_location).replace("\\", "/")
-    compile_data_py_str = str(data_location).replace("\\", "/")
+    compile_data_py_str = str(get_compile_data_path()).replace("\\", "/")
 
     files = {}
     for i, parameter in enumerate(param_to_combinations(parameters)):
