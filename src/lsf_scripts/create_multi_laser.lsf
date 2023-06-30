@@ -7,10 +7,10 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     clear;
     #main__ = currentscriptname;
     
-    lambda = 1550e-9;
+    N = 4;
+    center_wavelength = 1550e-9;
     gap = 100e-9;
     pwr = 1e-3;
-    N = 3;
     
     record_all = true;
     annotate_all = 3;
@@ -60,7 +60,7 @@ setnamed("OC", "number of ports", N);
 setnamed("OC", "split ratio", "none");
 for (i = 1:N) {
     setnamed("L_" + num2str(i), "power", pwr);
-    setnamed("L_" + num2str(i), "frequency", c/(lambda + (i - 1) * gap));
+    setnamed("L_" + num2str(i), "frequency", c/(center_wavelength + (i - ((N + 1) / 2)) * gap));
     setnamed("L_" + num2str(i), "azimuth", pi/2);
 }
 

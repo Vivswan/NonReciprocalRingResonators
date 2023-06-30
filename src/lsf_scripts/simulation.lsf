@@ -1,0 +1,53 @@
+if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == currentscriptname) {
+    #?currentscriptname;
+        
+    switchtodesign;
+    groupscope("::Root Element");
+    deleteall;
+    clear;
+    main__ = currentscriptname;
+
+    N = 1;
+    center_wavelength = 1550e-9;
+    gap = 100e-9;
+    
+    pwr = 1e-3;
+    insertion_loss = 3;
+    n_eff = 2.262;
+    n_grp = 3.484;
+    
+    reciprocal = true;
+    laser_sweep = true;
+    waveguides = false;
+    record_all = true;
+    annotate_all = 1;
+}
+
+if (N < 1) { print("WTF?"); break; }
+
+# Adding Properties
+addproperty("::Root Element", "center_wavelength", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=center_wavelength);
+addproperty("::Root Element", "insertion_loss", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=insertion_loss);
+addproperty("::Root Element", "n_eff", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=n_eff);
+addproperty("::Root Element", "n_grp", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=n_grp);
+annotateproperty("::Root Element", "insertion_loss", annotate_all >= 1);
+
+if (reciprocal) {
+    create_reciprocal_simulation;
+} else {
+    create_non_reciprocal_simulation;
+}
+
+
+# Setting Element Properties
+for (i = 1:N) {
+    setexpression("R_" + num2str(i), "center_wavelength", "center_wavelength");
+    setexpression("R_" + num2str(i), "insertion_loss", "insertion_loss");
+    setexpression("R_" + num2str(i), "n_eff", "n_eff");
+    setexpression("R_" + num2str(i), "n_grp", "n_grp");
+}
+
+
+if (getvariable("main__", "") == currentscriptname) {
+    main__ = "";
+}

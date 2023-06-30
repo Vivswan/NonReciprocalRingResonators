@@ -7,10 +7,10 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     clear;
     main__ = currentscriptname;
 
-    lambda = 1550e-9;
+    N = 1;
+    center_wavelength = 1550e-9;
     gap = 100e-9;
     pwr = 1e-3;
-    N = 3;
     
     laser_sweep = true;
     waveguides = true;
@@ -51,11 +51,11 @@ for (i = 1:length(eletrical_analysers_ports)) {
     set("name", "ESA_" + eletrical_analysers_ports{i});
 }
 for (i = 1:N) {
-    select("reciprocal_ring_resonator");
+    select("ring_resonator");
     copy();
     set("name", "R_" + num2str(i));
 }
-select("reciprocal_ring_resonator");
+select("ring_resonator");
 delete;
 
 

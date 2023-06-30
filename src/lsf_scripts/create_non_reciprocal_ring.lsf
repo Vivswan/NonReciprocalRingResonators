@@ -17,26 +17,38 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
 groupscope("::Root Element");
 unselectall;
 createcompound();
-set("name", "reciprocal_ring_resonator");
+set("name", "ring_resonator");
 
 # Adding Port
-addport("reciprocal_ring_resonator", "lt_o", "bidirectional", "Optical Signal", "Left", 0.25);
-addport("reciprocal_ring_resonator", "lb_o", "bidirectional", "Optical Signal", "Left", 0.75);
-addport("reciprocal_ring_resonator", "rt_o", "bidirectional", "Optical Signal", "Right", 0.25);
-addport("reciprocal_ring_resonator", "rb_o", "bidirectional", "Optical Signal", "Right", 0.75);
+addport("ring_resonator", "lt_o", "bidirectional", "Optical Signal", "Left", 0.25);
+addport("ring_resonator", "lb_o", "bidirectional", "Optical Signal", "Left", 0.75);
+addport("ring_resonator", "rt_o", "bidirectional", "Optical Signal", "Right", 0.25);
+addport("ring_resonator", "rb_o", "bidirectional", "Optical Signal", "Right", 0.75);
 
 # Adding Properties
-addproperty("reciprocal_ring_resonator", "phase", "Standard", type="Number", from=-4*pi, to=4*pi, kind="FixedUnit", unit="", default_value=(rand * 4 * pi - 2 * pi));
-addproperty("reciprocal_ring_resonator", "radius", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=20e-6);
-addproperty("reciprocal_ring_resonator", "left_edge_length", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=10e-6);
-addproperty("reciprocal_ring_resonator", "right_edge_length", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=10e-6);
-annotateproperty("reciprocal_ring_resonator", "phase", annotate_all >= 1);
-annotateproperty("reciprocal_ring_resonator", "radius", annotate_all >= 3);
-annotateproperty("reciprocal_ring_resonator", "left_edge_length", annotate_all >= 3);
-annotateproperty("reciprocal_ring_resonator", "right_edge_length", annotate_all >= 3);
+addproperty("ring_resonator", "phase", "Standard", type="Number", from=-4*pi, to=4*pi, kind="FixedUnit", unit="", default_value=(rand * 4 * pi - 2 * pi));
+addproperty("ring_resonator", "radius", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=20e-6);
+addproperty("ring_resonator", "coupling", "Standard", type="Number", from=0, to=1, kind="FixedUnit", unit="", default_value=0.5);
+addproperty("ring_resonator", "wavelength", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=1550e-9);
+addproperty("ring_resonator", "left_edge_length", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=10e-6);
+addproperty("ring_resonator", "right_edge_length", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=10e-6);
+addproperty("ring_resonator", "insertion_loss", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=0);
+addproperty("ring_resonator", "n_eff", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=1);
+addproperty("ring_resonator", "n_grp", "Standard", type="Number", from=0, to=1e100, kind="FixedUnit", unit="", default_value=1);
+addproperty("ring_resonator", "center_wavelength", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=1550e-9);
+annotateproperty("ring_resonator", "phase", annotate_all >= 1);
+annotateproperty("ring_resonator", "coupling", annotate_all >= 1);
+annotateproperty("ring_resonator", "wavelength", annotate_all >= 1);
+annotateproperty("ring_resonator", "radius", annotate_all >= 3);
+annotateproperty("ring_resonator", "left_edge_length", annotate_all >= 3);
+annotateproperty("ring_resonator", "right_edge_length", annotate_all >= 3);
+annotateproperty("ring_resonator", "insertion_loss", annotate_all >= 3);
+annotateproperty("ring_resonator", "n_eff", annotate_all >= 3);
+annotateproperty("ring_resonator", "n_grp", annotate_all >= 3);
+annotateproperty("ring_resonator", "center_wavelength", annotate_all >= 3);
 
 # Change to Compound's Scope
-groupscope("reciprocal_ring_resonator");
+groupscope("ring_resonator");
 
 # Renaming Ports/Relays
 select("RELAY_1");
@@ -121,7 +133,18 @@ if (waveguides) {
 # Setting Element Properties
 setexpression("OPS_CW", "phase shift", "phase");
 setexpression("OPS_CCW", "phase shift", "-phase");
+setexpression("DC_T", "coupling coefficient 1", "coupling");
+setexpression("DC_T", "coupling coefficient 2", "coupling");
+setexpression("DC_B", "coupling coefficient 1", "coupling");
+setexpression("DC_B", "coupling coefficient 2", "coupling");
 setexpression("WAB_R", "radius", "radius");
+setexpression("WAB_R", "frequency", "c/wavelength");
+setexpression("WAB_R", "loss 1", "insertion_loss");
+setexpression("WAB_R", "loss 2", "insertion_loss");
+setexpression("WAB_R", "effective index 1", "n_eff");
+setexpression("WAB_R", "effective index 2", "n_eff");
+setexpression("WAB_R", "group index 1", "n_grp");
+setexpression("WAB_R", "group index 2", "n_grp");
 setnamed("WAB_R", "angle", 4*pi);
 setnamed("CIR_T", "insertion loss", 1e-100);
 setnamed("CIR_B", "insertion loss", 1e-100);
@@ -136,6 +159,34 @@ if (waveguides) {
     setexpression("SW_TR", "length", "right_edge_length");
     setexpression("SW_BL", "length", "left_edge_length");
     setexpression("SW_BR", "length", "right_edge_length");
+    setexpression("SW_TL", "loss 1", "insertion_loss");
+    setexpression("SW_TR", "loss 1", "insertion_loss");
+    setexpression("SW_BL", "loss 1", "insertion_loss");
+    setexpression("SW_BR", "loss 1", "insertion_loss");
+    setexpression("SW_TL", "loss 2", "insertion_loss");
+    setexpression("SW_TR", "loss 2", "insertion_loss");
+    setexpression("SW_BL", "loss 2", "insertion_loss");
+    setexpression("SW_BR", "loss 2", "insertion_loss");
+    setexpression("SW_TL", "effective index 1", "n_eff");
+    setexpression("SW_TR", "effective index 1", "n_eff");
+    setexpression("SW_BL", "effective index 1", "n_eff");
+    setexpression("SW_BR", "effective index 1", "n_eff");
+    setexpression("SW_TL", "effective index 2", "n_eff");
+    setexpression("SW_TR", "effective index 2", "n_eff");
+    setexpression("SW_BL", "effective index 2", "n_eff");
+    setexpression("SW_BR", "effective index 2", "n_eff");
+    setexpression("SW_TL", "group index 1", "n_grp");
+    setexpression("SW_TR", "group index 1", "n_grp");
+    setexpression("SW_BL", "group index 1", "n_grp");
+    setexpression("SW_BR", "group index 1", "n_grp");
+    setexpression("SW_TL", "group index 2", "n_grp");
+    setexpression("SW_TR", "group index 2", "n_grp");
+    setexpression("SW_BL", "group index 2", "n_grp");
+    setexpression("SW_BR", "group index 2", "n_grp");
+    setexpression("SW_TL", "frequency", "center_wavelength");
+    setexpression("SW_TR", "frequency", "center_wavelength");
+    setexpression("SW_BL", "frequency", "center_wavelength");
+    setexpression("SW_BR", "frequency", "center_wavelength");
 }
 
 # Adding Element Connections
