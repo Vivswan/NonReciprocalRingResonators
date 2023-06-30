@@ -18,7 +18,7 @@ def create_lsf_script(
         index: Optional[str, int] = None,
         location: Union[str, Path] = get_lsf_path()
 ) -> Path:
-    location = Path(location).absolute()
+    location = Path(location).expanduser().absolute()
     name, script = process_scripts(
         parameters=parameters,
         location=location,
@@ -40,8 +40,8 @@ def create_lsf_script_sweep(
         data_location: Optional[Union[str, Path]] = None,
         with_slurm: bool = True,
 ):
-    location = get_lsf_path() if location is None else Path(location)
-    data_location = get_results_path() if data_location is None else Path(data_location)
+    location = get_lsf_path() if location is None else Path(location).expanduser().absolute()
+    data_location = get_results_path() if data_location is None else Path(data_location).expanduser().absolute()
 
     location = location.joinpath(script_name).absolute()
     data_location = data_location.joinpath(script_name).absolute()
@@ -57,6 +57,7 @@ def create_lsf_script_sweep(
     data_location.mkdir(exist_ok=True)
     location_str = str(location).replace("\\", "/")
     data_location_str = str(data_location).replace("\\", "/")
+    compile_data_py_str = str(data_location).replace("\\", "/")
 
     files = {}
     for i, parameter in enumerate(param_to_combinations(parameters)):
@@ -81,5 +82,6 @@ def create_lsf_script_sweep(
     lsf_script = lsf_script.replace("@name@", f"{script_name}")
     lsf_script = lsf_script.replace("@RunDirectoryLocation@", location_str)
     lsf_script = lsf_script.replace("@DataDirectoryLocation@", data_location_str)
+    lsf_script = lsf_script.replace("@compile_data_py@", compile_data_py_str)
     location.joinpath(f"{script_name}.sbatch.lsf").write_text(lsf_script, encoding="utf-8")
     return files

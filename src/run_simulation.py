@@ -47,7 +47,7 @@ def _main(*args, **kwargs):
     parsed_args.add_argument('-w', '--wavelength', type=float, default=1550, help='Center wavelength (nm)')
     parsed_args.add_argument('-g', '--wavelength-gap', type=float, default=100, help='Wavelength gap (nm)')
     parsed_args.add_argument('-p', '--laser-power', type=float, default=0.001, help='Laser Power (W)')
-    parsed_args.add_argument('-i', '--insertion-loss', type=float, default=0, help='Insertion loss (dB/cm)')
+    parsed_args.add_argument('-i', '--insertion-loss', type=float, default=3, help='Insertion loss (dB/cm)')
     parsed_args.add_argument('-e', '--n-eff', type=float, default=2.262, help='Effective index')
     parsed_args.add_argument('-r', '--n-grp', type=float, default=3.484, help='Group index')
     parsed_args.add_argument('-o', '--reciprocal', type=int, default=0, help='Reciprocal (0, 1 or -1)')

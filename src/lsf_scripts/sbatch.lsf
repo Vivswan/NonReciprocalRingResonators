@@ -68,9 +68,9 @@ for(0; true; 0) {
             mat_file = replacestring(random_filename, ".run.lsf", ".mat");
             sqlite_file = replacestring(random_filename, ".run.lsf", ".sqlite");
             command = "source ~/.bashrc";
-            command = command + " && conda activate Photonic-Layers";
+            command = command + " && conda activate Ring-Resonator";
             command = command + " && cd @DataDirectoryLocation@";
-            command = command + " && python ~/storage/Photonic-Layers/simulation/compile_data.py -l " + mat_file + " -d " + sqlite_file + " -opm";
+            command = command + " && python @compile_data_py@ -l " + mat_file + " -d " + sqlite_file + " -opm";
             system(command);
 
             try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".mat"));} catch(error_msg);
