@@ -38,6 +38,7 @@ setnamed("laser", "analysis type", "impulse response");
 setnamed("laser", "plot kind", "wavelength");
 setnamed("laser", "angle unit", "rad");
 setnamed("laser", "peak analysis", "disable");
+setnamed("laser", "label", "TM");
 
 # Hiding Element Annotations
 setnamed("laser", "annotate", annotate_all >= 1);

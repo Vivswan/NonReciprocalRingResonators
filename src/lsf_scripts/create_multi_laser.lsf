@@ -62,6 +62,7 @@ for (i = 1:num_resonators) {
     setnamed("L_" + num2str(i), "power", laser_power);
     setnamed("L_" + num2str(i), "frequency", c/(center_wavelength + (i - ((num_resonators + 1) / 2)) * wavelength_gap));
     setnamed("L_" + num2str(i), "azimuth", pi/2);
+    # setnamed("L_" + num2str(i), "label 1", "TM");
 }
 
 
