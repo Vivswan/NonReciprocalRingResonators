@@ -7,12 +7,13 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     clear;
     main__ = currentscriptname;
 
-    num_resonators = 1;
+    num_resonators = 3;
     center_wavelength = 1550e-9;
     wavelength_gap = 100e-9;
     
     laser_power = 1;
     insertion_loss = 3;
+    straight_waveguide_length = 10e-6;
     straight_n_eff = 2.262;
     straight_n_grp = 3.484;
     bend_n_eff = 2.26;
@@ -20,7 +21,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
 
     # -1 for non-reciprocal, 0 for reciprocal and +1 for full-reciprocal
     reciprocal = 1;
-    laser_sweep = false;
+    laser_sweep = true;
     waveguides = true;
     record_all = true;
     annotate_all = 1;
@@ -34,6 +35,7 @@ addproperty("::Root Element", "center_wavelength", "Standard", type="Number", fr
 addproperty("::Root Element", "wavelength_gap", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=wavelength_gap);
 addproperty("::Root Element", "laser_power", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=laser_power);
 addproperty("::Root Element", "insertion_loss", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=insertion_loss);
+addproperty("::Root Element", "straight_waveguide_length", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=straight_waveguide_length);
 addproperty("::Root Element", "straight_n_eff", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=straight_n_eff);
 addproperty("::Root Element", "straight_n_grp", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=straight_n_grp);
 addproperty("::Root Element", "bend_n_eff", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=bend_n_eff);
@@ -46,6 +48,7 @@ annotateproperty("::Root Element", "center_wavelength", annotate_all >= 3);
 annotateproperty("::Root Element", "wavelength_gap", annotate_all >= 3);
 annotateproperty("::Root Element", "laser_power", annotate_all >= 3);
 annotateproperty("::Root Element", "insertion_loss", annotate_all >= 3);
+annotateproperty("::Root Element", "straight_waveguide_length", annotate_all >= 3);
 annotateproperty("::Root Element", "straight_n_eff", annotate_all >= 3);
 annotateproperty("::Root Element", "straight_n_grp", annotate_all >= 3);
 annotateproperty("::Root Element", "bend_n_eff", annotate_all >= 3);
@@ -75,6 +78,17 @@ for (i = 1:num_resonators) {
     setexpression("R_" + num2str(i), "straight_n_grp", "straight_n_grp");
     setexpression("R_" + num2str(i), "bend_n_eff", "bend_n_eff");
     setexpression("R_" + num2str(i), "bend_n_grp", "bend_n_grp");
+
+    if (i == 1) {
+        setexpression("R_" + num2str(i), "left_edge_length", "straight_waveguide_length");
+    } else {
+        setexpression("R_" + num2str(i), "left_edge_length", "straight_waveguide_length/2");
+    }
+    if (i == num_resonators) {
+        setexpression("R_" + num2str(i), "right_edge_length", "straight_waveguide_length");
+    } else {
+        setexpression("R_" + num2str(i), "right_edge_length", "straight_waveguide_length/2");
+    }
 }
 
 
