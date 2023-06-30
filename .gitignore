@@ -3,8 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-z_outputs/**
-!z_outputs/__init__.py
+failed.txt
+simulation/z_output/*
+simulation/z_output/**/*
+!simulation/z_output/__init__.py
+!simulation/z_output/**/__init__.py
+!simulation/z_output/lsf/running_to_run.sh
 
 .idea
 .idea/**
