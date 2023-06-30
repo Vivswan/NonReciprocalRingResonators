@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 def get_cache_path():
-    return Path(__file__).parent
+    return Path(__file__).expanduser().absolute().parent
 
 
 def clear_cache():

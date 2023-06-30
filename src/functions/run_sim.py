@@ -14,7 +14,7 @@ def run_point(
         setup_script: str,
         script_name: str,
         hide: bool = True,
-        location: Union[str, Path] = Path(sys.argv[0])
+        location: Union[str, Path] = Path(sys.argv[0]).expanduser().absolute()
 ) -> None:
     import lumapi
     _, script = process_scripts(

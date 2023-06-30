@@ -15,6 +15,10 @@ from src.functions.SqliteDeDuplicationDict import SqliteDeDuplicationDict
 from z_outputs.results import get_results_path
 
 
+def get_compile_data_path():
+    return Path(__file__).expanduser().absolute()
+
+
 def refactor_lumerical_mat(data):
     if isinstance(data, dict):
         for k, v in data.items():
@@ -68,7 +72,7 @@ def refactor_lumerical_mat(data):
 
 
 def mat_to_db(location: Union[str, Path], db_location: Optional[Union[str, Path]], delete: bool = False):
-    location = Path(location).absolute()
+    location = Path(location).expanduser().absolute()
     with SqliteDeDuplicationDict(db_location) as db:
         if location.stem in db:
             return
@@ -92,7 +96,7 @@ def compile_data(
         override: bool = False,
         delete: bool = False,
 ) -> Path:
-    location = Path(location).absolute()
+    location = Path(location).expanduser().absolute()
 
     if not location.exists():
         raise ValueError(f"Location {location} does not exist")
@@ -100,7 +104,7 @@ def compile_data(
     if db_location is None:
         db_location = location.parent.joinpath(f"{location.name}.sqlite")
     else:
-        db_location = Path(db_location).absolute()
+        db_location = Path(db_location).expanduser().absolute()
 
     if location.is_file():
         if location.suffix != ".mat":
@@ -160,7 +164,7 @@ def load_data(
     if location is None:
         db_location = get_results_path().joinpath(f"{script_name}.sqlite").absolute()
     else:
-        location = Path(location)
+        location = Path(location).expanduser().absolute()
         db_location = location.parent.joinpath(f"{location.name}.sqlite").absolute()
 
     if not db_location.exists() or force:
