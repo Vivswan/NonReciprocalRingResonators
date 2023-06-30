@@ -41,7 +41,7 @@ def _main(*args, **kwargs):
 
     parsed_args.add_argument(
         '-c', '--components', type=str, nargs='+', required=True,
-        help='Components to sweep, format: "[i|w|d]:<component_name>:<parameter_name>:<min>:<max>:<num>"'
+        help='Components to sweep, format: "[r|c|s]:<component_name>:<parameter_name>:<min>:<max>:<num>"'
     )
     parsed_args.add_argument('-n', '--num-resonators', type=int, default=3, help='Number of resonators')
     parsed_args.add_argument('-w', '--wavelength', type=float, default=1550, help='Center wavelength (nm)')
@@ -98,7 +98,7 @@ def _main(*args, **kwargs):
 
         if len(component) != 6:
             raise ValueError(
-                'Invalid component format, must be "[l|d]:<component_name>*:<parameter_name>*:<min>:<max>:<num>"'
+                'Invalid component format, must be "[r|c|s]:<component_name>*:<parameter_name>*:<min>:<max>:<num>"'
             )
 
         component = {
@@ -106,34 +106,34 @@ def _main(*args, **kwargs):
             'component_name': component[1].split('|'),
             'parameter_name': component[2].split('|'),
             'min': float(component[3]),
-            'max': float(component[4]),
-            'num': int(component[5]),
+            'max': float(component[4]) if len(component[4]) > 0 else None,
+            'num': int(component[5]) if len(component[5]) > 0 else None,
         }
 
-        if not all(i in ['i', 'w', 'd'] for i in component['type']):
-            raise ValueError(f'Invalid component type {component["type"]!r}, must be "i", "w" or "d"')
+        if not all(i in ['r', 'c', 's'] for i in component['type']):
+            raise ValueError(f'Invalid component type {component["type"]!r}, must be "r", "c" or "s"')
+
+        if component['type'] == 's':
+            if component['component_name']:
+                root = "::Root Element::" + component['component_name']
+            else:
+                root = "::Root Element"
+            parameter = component['parameter_name']
+            parameter_value = component['min']
+            setup_script += f'    setnamed("{root}", "{parameter}", {parameter_value});\n'
 
         components.append(component)
         parameter_name = sha256(
             json.dumps((component['type'], component['component_name'], component['parameter_name'])).encode("utf-8")
         ).hexdigest()[:HASH_LENGTH]
-        parameters[parameter_name] = {
-            'min': float(component['min']),
-            'max': float(component['max']),
-            'num': int(component['num']),
-        }
+        parameters[parameter_name] = dict(min=component['min'], max=component['max'], num=component['num'])
 
         absolute_components = []
-        if 'i' in component['type']:
-            for i in range(1, parsed_args.matrix_size + 1):
-                absolute_components.append(f"::Root Element::L_{i}_0")
-        if 'w' in component['type']:
-            for i in range(1, parsed_args.matrix_size + 1):
-                absolute_components.append(f"::Root Element::L_0_{i}")
-        if 'd' in component['type']:
-            for i in range(1, parsed_args.matrix_size + 1):
-                for j in range(1, parsed_args.matrix_size + 1):
-                    absolute_components.append(f"::Root Element::D_{i}_{j}")
+        if 'r' in component['type']:
+            for i in range(1, parsed_args.num_resonators + 1):
+                absolute_components.append(f"::Root Element::R_{i}")
+        else:
+            absolute_components.append(f"::Root Element")
 
         full_components = (absolute_components, component['component_name'], component['parameter_name'])
         combinations = itertools.product(*full_components)
