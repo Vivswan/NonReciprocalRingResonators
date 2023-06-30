@@ -19,7 +19,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     # -1 for non-reciprocal, 0 for reciprocal and +1 for full-reciprocal
     reciprocal = 0;
     laser_sweep = true;
-    waveguides = false;
+    waveguides = true;
     record_all = true;
     annotate_all = 1;
 }
@@ -44,7 +44,7 @@ if (reciprocal < 0) {
 # Setting Element Properties
 for (i = 1:N) {
     setexpression("R_" + num2str(i), "center_wavelength", "center_wavelength");
-    setexpression("R_" + num2str(i), "insertion_loss", "insertion_loss");
+    setexpression("R_" + num2str(i), "insertion_loss", "insertion_loss * 100");
     setexpression("R_" + num2str(i), "n_eff", "n_eff");
     setexpression("R_" + num2str(i), "n_grp", "n_grp");
 }
