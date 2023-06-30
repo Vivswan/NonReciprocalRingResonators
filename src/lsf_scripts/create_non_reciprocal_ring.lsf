@@ -145,7 +145,7 @@ setexpression("WAB_R", "effective index 1", "n_eff");
 setexpression("WAB_R", "effective index 2", "n_eff");
 setexpression("WAB_R", "group index 1", "n_grp");
 setexpression("WAB_R", "group index 2", "n_grp");
-setnamed("WAB_R", "angle", 4*pi);
+setnamed("WAB_R", "angle", 2*pi);
 setnamed("CIR_T", "insertion loss", 1e-100);
 setnamed("CIR_B", "insertion loss", 1e-100);
 setnamed("CIR_T", "isolation", 1e100);

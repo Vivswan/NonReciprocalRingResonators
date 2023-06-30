@@ -12,6 +12,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     gap = 100e-9;
     pwr = 1e-3;
     
+    full_reciprocal = true;
     laser_sweep = false;
     waveguides = true;
     record_all = true;

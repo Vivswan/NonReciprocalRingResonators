@@ -16,7 +16,8 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     n_eff = 2.262;
     n_grp = 3.484;
     
-    reciprocal = true;
+    # -1 for non-reciprocal, 0 for reciprocal and +1 for full-reciprocal
+    reciprocal = 0;
     laser_sweep = true;
     waveguides = false;
     record_all = true;
@@ -32,10 +33,11 @@ addproperty("::Root Element", "n_eff", "Standard", type="Number", from=-1e100, t
 addproperty("::Root Element", "n_grp", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=n_grp);
 annotateproperty("::Root Element", "insertion_loss", annotate_all >= 1);
 
-if (reciprocal) {
-    create_reciprocal_simulation;
-} else {
+if (reciprocal < 0) {
     create_non_reciprocal_simulation;
+} else {
+    full_reciprocal = reciprocal > 0;
+    create_reciprocal_simulation;
 }
 
 

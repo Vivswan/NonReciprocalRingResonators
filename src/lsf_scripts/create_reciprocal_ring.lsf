@@ -7,6 +7,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     clear;
     #main__ = currentscriptname;
 
+    full_reciprocal = false;
     waveguides = true;
     record_all = true;
     annotate_all = 0;
@@ -69,6 +70,12 @@ addelement("Optical Phase Shift");
 set("name", "OPS_L");
 addelement("Waveguide Arc Bend");
 set("name", "WAB_R");
+if (full_reciprocal) {
+    addelement("Optical Phase Shift");
+    set("name", "OPS_R");
+    addelement("Waveguide Arc Bend");
+    set("name", "WAB_L");
+}
 if (waveguides) {
     addelement("Straight Waveguide");
     set("name", "SW_TL");
@@ -97,8 +104,16 @@ rotateelement("OPS_L");
 setnamed("WAB_R", "x position", x_off + 800);
 setnamed("WAB_R", "y position", y_off + 200);
 rotateelement("WAB_R");
+if (full_reciprocal) {
+    setnamed("OPS_R", "x position", getnamed("WAB_R", "x position") + 16);
+    setnamed("OPS_R", "y position", y_off + 400);
+    rotateelement("OPS_R");
+    setnamed("WAB_L", "x position", getnamed("OPS_L", "x position") - 16);
+    setnamed("WAB_L", "y position", y_off + 400);
+    rotateelement("WAB_L");
+}
 setnamed("DC_B", "x position", getnamed("DC_T", "x position"));
-setnamed("DC_B", "y position", y_off + 400);
+setnamed("DC_B", "y position", y_off + 600);
 setnamed("RO_LB", "x position", getnamed("RO_LT", "x position"));
 setnamed("RO_LB", "y position", getnamed("DC_B", "y position") + 35);
 setnamed("RO_RB", "x position", getnamed("RO_RT", "x position"));
@@ -116,7 +131,6 @@ if (waveguides) {
 }
 
 # Setting Element Properties
-setexpression("OPS_L", "phase shift", "phase");
 setexpression("DC_T", "coupling coefficient 1", "coupling");
 setexpression("DC_T", "coupling coefficient 2", "coupling");
 setexpression("DC_B", "coupling coefficient 1", "coupling");
@@ -129,7 +143,23 @@ setexpression("WAB_R", "effective index 1", "n_eff");
 setexpression("WAB_R", "effective index 2", "n_eff");
 setexpression("WAB_R", "group index 1", "n_grp");
 setexpression("WAB_R", "group index 2", "n_grp");
-setnamed("WAB_R", "angle", 4*pi);
+if (!full_reciprocal) {
+    setexpression("OPS_L", "phase shift", "phase");
+    setnamed("WAB_R", "angle", 2*pi);
+} else {
+    setexpression("OPS_L", "phase shift", "phase/2");
+    setexpression("OPS_R", "phase shift", "phase/2");
+    setnamed("WAB_L", "angle", pi);
+    setnamed("WAB_R", "angle", pi);
+    setexpression("WAB_L", "radius", "radius");
+    setexpression("WAB_L", "frequency", "c/wavelength");
+    setexpression("WAB_L", "loss 1", "insertion_loss");
+    setexpression("WAB_L", "loss 2", "insertion_loss");
+    setexpression("WAB_L", "effective index 1", "n_eff");
+    setexpression("WAB_L", "effective index 2", "n_eff");
+    setexpression("WAB_L", "group index 1", "n_grp");
+    setexpression("WAB_L", "group index 2", "n_grp");
+}
 if (waveguides) {
     setexpression("SW_TL", "length", "left_edge_length");
     setexpression("SW_TR", "length", "right_edge_length");
@@ -196,6 +226,13 @@ if (waveguides) {
     for (i=1:length(W_elements)) { temp{length(multiper_elements) + i} = W_elements{i}; }
     multiper_elements = temp;
 }
+if (full_reciprocal) {
+    temp = cell(length(multiper_elements) + 2);
+    for (i=1:length(multiper_elements)) { temp{i} = multiper_elements{i}; }
+    temp{length(multiper_elements) + 1} = "WAB_L";
+    temp{length(multiper_elements) + 2} = "OPS_R";
+    multiper_elements = temp;
+}
 
 # Hiding Element Annotations
 for (i = 1:length(multiper_elements)) { setnamed(multiper_elements{i}, "annotate", annotate_all >= 3); }
@@ -211,6 +248,15 @@ if (record_all) {
             temp{length(optical_analysers_ports) + 2 * (i-1) + 1} = W_elements{i} + "_1";
             temp{length(optical_analysers_ports) + 2 * (i-1) + 2} = W_elements{i} + "_2";
         }
+        optical_analysers_ports = temp;
+    }
+    if (full_reciprocal) {
+        temp = cell(length(optical_analysers_ports) + 4);
+        for (i=1:length(optical_analysers_ports)) { temp{i} = optical_analysers_ports{i}; }
+        temp{length(optical_analysers_ports) + 1} = "WAB_L_1";
+        temp{length(optical_analysers_ports) + 2} = "WAB_L_2";
+        temp{length(optical_analysers_ports) + 3} = "OPS_R_1";
+        temp{length(optical_analysers_ports) + 4} = "OPS_R_2";
         optical_analysers_ports = temp;
     }
 
@@ -232,6 +278,15 @@ if (record_all) {
         connect(connections{i}, "port", "OPM_" + connections{i}, "input");
     }
     connections = {"DC_T_1", "DC_T_2", "DC_T_3", "DC_T_4", "DC_B_1", "DC_B_2", "DC_B_3", "DC_B_4", "OPS_L_1", "OPS_L_2", "WAB_R_1", "WAB_R_2"};
+    if (full_reciprocal) {
+        temp = cell(length(connections) + 4);
+        for (i=1:length(connections)) { temp{i} = connections{i}; }
+        temp{length(connections) + 1} = "WAB_L_1";
+        temp{length(connections) + 2} = "WAB_L_2";
+        temp{length(connections) + 3} = "OPS_R_1";
+        temp{length(connections) + 4} = "OPS_R_2";
+        connections = temp;
+    }
     for (i=1:length(connections)) {
         element = substring(connections{i}, 1, length(connections{i}) - 2);
         port_number = substring(connections{i}, length(connections{i}), 1);
@@ -287,6 +342,19 @@ if (record_all) {
         temp{length(down_element) + 3} = {"SW_BR_1", -50};
         temp{length(down_element) + 4} = {"SW_BR_2", 85};
         down_element = temp;
+    }
+    if (full_reciprocal) {
+        temp = cell(length(left_element) + 2);
+        for (i=1:length(left_element)) { temp{i} = left_element{i}; }
+        temp{length(left_element) + 1} = {"WAB_L_1", -50};
+        temp{length(left_element) + 2} = {"WAB_L_2", 85};
+        left_element = temp;
+        
+        temp = cell(length(right_element) + 2);
+        for (i=1:length(right_element)) { temp{i} = right_element{i}; }
+        temp{length(right_element) + 1} = {"OPS_R_1", -50};
+        temp{length(right_element) + 2} = {"OPS_R_2", 50};
+        right_element = temp;
     }
 
     for (i=1:length(up_element)) {
