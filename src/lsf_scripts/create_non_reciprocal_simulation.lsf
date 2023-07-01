@@ -12,7 +12,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     wavelength_gap = 100e-9;
     laser_power = 1e-3;
     
-    laser_sweep = true;
+    frequency_sweep = true;
     waveguides = true;
     record_all = true;
     annotate_all = 0;
@@ -23,7 +23,7 @@ if (num_resonators < 1) { print("WTF?"); break; }
 # Adding Elements
 create_non_reciprocal_ring;
 
-if (laser_sweep) {
+if (frequency_sweep) {
     sweep_laser;
     flipelement("laser");
     rotateelement("laser");
@@ -93,7 +93,7 @@ connect("OS", "output 1", "R_1", "lt_o");
 connect("OS", "output 2", "R_1", "lb_o");
 connect("R_" + num2str(num_resonators), "rt_o", "PIN_T", "input");
 connect("R_" + num2str(num_resonators), "rb_o", "PIN_B", "input");
-if (laser_sweep) {
+if (frequency_sweep) {
     connect("laser", "input 1", "R_1", "lt_o");
     connect("laser", "input 2", "R_1", "lb_o");
     connect("laser", "input 3", "R_" + num2str(num_resonators), "rt_o");

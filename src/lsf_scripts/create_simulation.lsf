@@ -13,7 +13,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     
     laser_power = 1e-3; # W
     wg_insertion_loss = 3; # dB/cm
-    dc_insertion_loss = 0.5; # dB
+    dc_insertion_loss = 0; # dB
     bend_insertion_loss = 0.04; # dB/2pi
     straight_waveguide_length = 10e-6; # m
     straight_n_eff = 2.262;
@@ -23,7 +23,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
 
     # -1 for non-reciprocal, 0 for reciprocal and +1 for full-reciprocal
     reciprocal = -1;
-    laser_sweep = true;
+    frequency_sweep = true;
     waveguides = true;
     record_all = true;
     annotate_all = 1;
@@ -45,7 +45,7 @@ addproperty("::Root Element", "straight_n_grp", "Standard", type="Number", from=
 addproperty("::Root Element", "bend_n_eff", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=bend_n_eff);
 addproperty("::Root Element", "bend_n_grp", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=bend_n_grp);
 addproperty("::Root Element", "reciprocal", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=reciprocal);
-addproperty("::Root Element", "laser_sweep", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=laser_sweep);
+addproperty("::Root Element", "frequency_sweep", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=frequency_sweep);
 addproperty("::Root Element", "waveguides", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=waveguides);
 annotateproperty("::Root Element", "num_resonators", annotate_all >= 3);
 annotateproperty("::Root Element", "center_wavelength", annotate_all >= 3);
@@ -60,7 +60,7 @@ annotateproperty("::Root Element", "straight_n_grp", annotate_all >= 3);
 annotateproperty("::Root Element", "bend_n_eff", annotate_all >= 3);
 annotateproperty("::Root Element", "bend_n_grp", annotate_all >= 3);
 annotateproperty("::Root Element", "reciprocal", annotate_all >= 3);
-annotateproperty("::Root Element", "laser_sweep", annotate_all >= 3);
+annotateproperty("::Root Element", "frequency_sweep", annotate_all >= 3);
 annotateproperty("::Root Element", "waveguides", annotate_all >= 3);
 
 # Setting Properties

@@ -17,7 +17,7 @@ SETUP_SCRIPT = r'''
     center_wavelength = {wavelength} * 1e-9; # m
     wavelength_gap = {wavelength_gap} * 1e-9; # m
     
-    laser_power = {power} * 1e-3; # W
+    laser_power = {laser_power} * 1e-3; # W
     wg_insertion_loss = {wg_insertion_loss}; # dB/cm
     dc_insertion_loss = {dc_insertion_loss}; # dB
     bend_insertion_loss = {bend_insertion_loss}; # dB/2pi
@@ -29,7 +29,7 @@ SETUP_SCRIPT = r'''
     
     # -1 for non-reciprocal, 0 for reciprocal and +1 for full-reciprocal
     reciprocal = {reciprocal};
-    laser_sweep = {laser_sweep};
+    frequency_sweep = {frequency_sweep};
     waveguides = {waveguides};
     
     record_all = true;
@@ -88,7 +88,7 @@ def _main(*args, **kwargs):
     hash_args = copy.deepcopy(vars(parsed_args))
     # hash_args["components"] = sorted([i.split(":")[:3] for i in parsed_args.components])
     hash_args.pop('num_resonators')
-    hash_args.pop('laser_sweep')
+    hash_args.pop('frequency_sweep')
     hash_args.pop('waveguides')
     hash_args.pop('run')
     hash_args.pop('lsf')
@@ -98,7 +98,7 @@ def _main(*args, **kwargs):
     script_name = (
         f'simulation_'
         f'{int(parsed_args.num_resonators)}'
-        f'{int(parsed_args.laser_sweep)}'
+        f'{int(parsed_args.frequency_sweep)}'
         f'{int(parsed_args.waveguides)}'
         f'_{hash_name}'
     )
