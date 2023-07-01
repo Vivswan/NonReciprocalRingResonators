@@ -89,6 +89,13 @@ class Component:
     def __repr__(self):
         return f"Component({self.sweep_str!r})"
 
+    @property
+    def short_repr(self):
+        if self.value is not None:
+            return f"{self.types}:{self.names}:{self.parameters}:{self.value}"
+
+        return f"{self.types}:{self.names}:{self.parameters}"
+
 
 def _main(*args, **kwargs):
     parsed_args = argparse.ArgumentParser(description='Run Ring Resonator component sweep')
@@ -161,7 +168,7 @@ def _main(*args, **kwargs):
         raise ValueError('Wavelength gap must be positive')
 
     hash_args = copy.deepcopy(vars(parsed_args))
-    # hash_args["components"] = sorted([i.split(":")[:3] for i in parsed_args.components])
+    hash_args["components"] = sorted([Component(i).short_repr for i in parsed_args.components])
     hash_args.pop('num_resonators')
     hash_args.pop('frequency_sweep')
     hash_args.pop('waveguides')
