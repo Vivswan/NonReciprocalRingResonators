@@ -6,6 +6,10 @@ import numpy as np
 
 
 def param_to_combinations(parameters: Dict[str, Dict[str, float]]) -> Generator[Dict[str, float]]:
+    if not parameters:
+        yield {}
+        return
+
     inputs_dict: Dict[str, np.ndarray] = {}
 
     for name, values in parameters.items():

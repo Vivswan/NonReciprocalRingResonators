@@ -5,7 +5,7 @@ import copy
 import itertools
 import json
 from hashlib import sha256
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Optional
 
 from src.functions.__const__ import HASH_LENGTH
 from src.functions.lsf_script import create_lsf_script_sweep
@@ -37,33 +37,108 @@ SETUP_SCRIPT = r'''
 
     addproperty("::Root Element", "simulation_of", "String", type="String");
     setnamed("::Root Element", "simulation_of", {simulation_of});
-    simulation;
+    create_simulation;
 
 '''
 
 
+class Component:
+    instruction_syntax = "[r|]:<component_name>|*:<parameter_name>|*:[<value>|<min>:<max>:<num>]"
+
+    def __init__(self, sweep_str: str):
+        self.sweep_str = sweep_str
+
+        component = sweep_str.split(":")
+        if not (len(component) == 4 or len(component) == 6):
+            raise ValueError(
+                f"Invalid component parameter format: {sweep_str!r} "
+                f"(incorrect number of ':'s) (expected {self.instruction_syntax})"
+            )
+
+        self.types: List[str] = sorted(component[0].lower().split("|"))
+        self.names: List[str] = sorted(component[1].split("|"))
+        self.parameters: List[str] = sorted(component[2].split("|"))
+        self.value: Optional[str] = component[3] if len(component) == 4 else None
+        self.min: Optional[float] = component[3] if len(component) == 6 else None
+        self.max: Optional[float] = component[4] if len(component) == 6 else None
+        self.num: Optional[int] = int(component[5]) if len(component) == 6 else None
+
+        if all(i not in ["r", ""] for i in self.types):
+            raise ValueError(f"Invalid component type: {self.types!r} not in ['r', '']")
+
+        if "" in self.types and len(self.types) > 1:
+            raise ValueError(f"Invalid component type: {self.types!r} contains '' and other types")
+
+        if self.value is not None:
+            if self.min is not None or self.max is not None or self.num is not None:
+                raise ValueError(
+                    f"Invalid component parameter format: {sweep_str!r} "
+                    f"(value given with min/max/num) (expected {self.instruction_syntax})"
+                )
+        else:
+            if self.min is None or self.max is None or self.num is None:
+                raise ValueError(
+                    f"Invalid component parameter format: {sweep_str!r} "
+                    f"(no value given with min/max/num) (expected {self.instruction_syntax})"
+                )
+
+            self.min = float(self.min)
+            self.max = float(self.max)
+            self.num = int(self.num)
+
+    def __repr__(self):
+        return f"Component({self.sweep_str!r})"
+
+
 def _main(*args, **kwargs):
-    parsed_args = argparse.ArgumentParser(description='Run DPUC component sweep')
+    parsed_args = argparse.ArgumentParser(description='Run Ring Resonator component sweep')
 
     parsed_args.add_argument(
         '-c', '--components', type=str, nargs='+', required=True,
-        help='Components to sweep, format: "[r|c|s]:<component_name>:<parameter_name>:<min>:<max>:<num>"'
+        help=f'Components to sweep, format: {Component.instruction_syntax!r}'
     )
-    parsed_args.add_argument('-n', '--num-resonators', type=int, required=True, help='Number of resonators')
-    parsed_args.add_argument('--wavelength', type=float, default=1550, help='Center wavelength (nm)')
-    parsed_args.add_argument('--wavelength-gap', type=float, default=100, help='Wavelength gap (nm)')
-    parsed_args.add_argument('--laser-power', type=float, default=1, help='Laser Power (mW)')
-    parsed_args.add_argument('--wg-insertion-loss', type=float, default=3, help='Waveguide Insertion loss (dB/cm)')
-    parsed_args.add_argument('--dc-insertion-loss', type=float, default=0.5, help='DC Insertion loss (dB)')
-    parsed_args.add_argument('--bend-insertion-loss', type=float, default=0.04, help='Bend Insertion loss (dB/2pi)')
-    parsed_args.add_argument('--straight-waveguide-length', type=float, default=100, help='Straight waveguide (nm)')
-    parsed_args.add_argument('--straight-n-eff', type=float, default=2.262, help='Straight n_eff')
-    parsed_args.add_argument('--straight-n-grp', type=float, default=3.484, help='Straight n_grp')
-    parsed_args.add_argument('--bend-n-eff', type=float, default=2.262, help='Bend n_eff')
-    parsed_args.add_argument('--bend-n-grp', type=float, default=3.484, help='Bend n_grp')
-    parsed_args.add_argument('--reciprocal', type=int, required=True, help='Reciprocal (0, 1 or -1)')
-    parsed_args.add_argument('--laser-sweep', action="store_true", help='Sweep wavelength')
-    parsed_args.add_argument('--waveguides', action="store_true", help='with waveguides')
+    parsed_args.add_argument(
+        '-n', '--num-resonators', type=int, required=True, help='Number of resonators'
+    )
+    parsed_args.add_argument(
+        '--wavelength', type=float, default=1550, help='Center wavelength (nm), default: 1550 nm'
+    )
+    parsed_args.add_argument(
+        '--wavelength-gap', type=float, default=100, help='Wavelength gap (nm), default: 100 nm'
+    )
+    parsed_args.add_argument(
+        '--laser-power', type=float, default=1, help='Laser Power (mW), default: 1 mW'
+    )
+    parsed_args.add_argument(
+        '--wg-insertion-loss', type=float, default=3, help='Waveguide Insertion loss (dB/cm), default: 3 dB/cm'
+    )
+    parsed_args.add_argument(
+        '--dc-insertion-loss', type=float, default=0.5, help='DC Insertion loss (dB), default: 0.5 dB'
+    )
+    parsed_args.add_argument(
+        '--bend-insertion-loss', type=float, default=0.04, help='Bend Insertion loss (dB/2pi), default: 0.04 dB/2pi'
+    )
+    parsed_args.add_argument(
+        '--straight-waveguide-length', type=float, default=100, help='Straight waveguide (nm), default: 100 nm'
+    )
+    parsed_args.add_argument(
+        '--straight-n-eff', type=float, default=2.262, help='Straight n_eff, default: 2.262'
+    )
+    parsed_args.add_argument(
+        '--straight-n-grp', type=float, default=3.484, help='Straight n_grp, default: 3.484'
+    )
+    parsed_args.add_argument(
+        '--bend-n-eff', type=float, default=2.262, help='Bend n_eff, default: 2.262'
+    )
+    parsed_args.add_argument(
+        '--bend-n-grp', type=float, default=3.484, help='Bend n_grp, default: 3.484'
+    )
+    parsed_args.add_argument(
+        '-d', '--reciprocal', type=int, required=True,
+        help='Reciprocal (-1 for non-reciprocal, 0 for reciprocal, 1 for full-reciprocal)'
+    )
+    parsed_args.add_argument('-f', '--frequency-sweep', action="store_true", help='Sweep frequencies')
+    parsed_args.add_argument('-w', '--waveguides', action="store_true", help='with waveguides')
     parsed_args.add_argument('-r', '--run', action="store_true", help='Run simulation')
     parsed_args.add_argument('-l', '--lsf', action="store_true", help='Create LSF script')
     parsed_args.add_argument('-g', '--gui', action="store_true", help='Run with GUI, --run only')
@@ -110,58 +185,38 @@ def _main(*args, **kwargs):
     names_file.write_text(json.dumps(names, indent=4, sort_keys=True))
 
     setup_script = SETUP_SCRIPT
-    setup_script = setup_script.replace('{matrix_size}', f"{parsed_args.matrix_size!r}")
-    setup_script = setup_script.replace('{sweep_of}', f"{json.dumps(parsed_args.components)!r}")
+    setup_script = setup_script.replace('{simulation_of}', f"{json.dumps(parsed_args.components)!r}")
+    for k, v in vars(parsed_args).items():
+        if isinstance(v, bool):
+            setup_script = setup_script.replace(f'{{{k}}}', str(v).lower())
+        else:
+            setup_script = setup_script.replace(f'{{{k}}}', f'{v!r}')
 
-    components: List[Dict[str, Union[str, float, int]]] = []
     parameters: Dict[str, Dict[str, Union[int, float]]] = {}
     for component in parsed_args.components:
-        component = component.split(':')
+        component = Component(component)
 
-        if len(component) != 6:
-            raise ValueError(
-                'Invalid component format, must be "[r|c|s]:<component_name>*:<parameter_name>*:<min>:<max>:<num>"'
-            )
-
-        component = {
-            'type': component[0].split('|'),
-            'component_name': component[1].split('|'),
-            'parameter_name': component[2].split('|'),
-            'min': float(component[3]),
-            'max': float(component[4]) if len(component[4]) > 0 else None,
-            'num': int(component[5]) if len(component[5]) > 0 else None,
-        }
-
-        if not all(i in ['r', 'c', 's'] for i in component['type']):
-            raise ValueError(f'Invalid component type {component["type"]!r}, must be "r", "c" or "s"')
-
-        if component['type'] == 's':
-            if component['component_name']:
-                root = "::Root Element::" + component['component_name']
-            else:
-                root = "::Root Element"
-            parameter = component['parameter_name']
-            parameter_value = component['min']
-            setup_script += f'    setnamed("{root}", "{parameter}", {parameter_value});\n'
-
-        components.append(component)
-        parameter_name = sha256(
-            json.dumps((component['type'], component['component_name'], component['parameter_name'])).encode("utf-8")
-        ).hexdigest()[:HASH_LENGTH]
-        parameters[parameter_name] = dict(min=component['min'], max=component['max'], num=component['num'])
+        parameter_name = sha256(f"{component.types}, {component.names}, {component.parameters}".encode("utf-8"))
+        parameter_name = parameter_name.hexdigest()[:HASH_LENGTH]
 
         absolute_components = []
-        if 'r' in component['type']:
-            for i in range(1, parsed_args.num_resonators + 1):
-                absolute_components.append(f"::Root Element::R_{i}")
-        else:
-            absolute_components.append(f"::Root Element")
+        for component_type in component.types:
+            if component_type == 'r':
+                for i in range(1, parsed_args.num_resonators + 1):
+                    absolute_components.append(f"::Root Element::R_{i}")
+            if component_type == '':
+                absolute_components.append(f"::Root Element")
 
-        full_components = (absolute_components, component['component_name'], component['parameter_name'])
+        full_components = (absolute_components, component.names, component.parameters)
         combinations = itertools.product(*full_components)
         for root, name, parameter in combinations:
             root = f"{root}::{name}" if len(name) != 0 else f"{root}"
             setup_script += f'    setnamed("{root}", "{parameter}", {{{parameter_name}}});\n'
+
+        if component.value is not None:
+            setup_script = setup_script.replace(f'{{{parameter_name}}}', component.value)
+        else:
+            parameters[parameter_name] = dict(min=component.min, max=component.max, num=component.num)
 
     common_args = dict(
         parameters=parameters,
