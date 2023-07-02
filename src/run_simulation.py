@@ -7,6 +7,8 @@ import json
 from hashlib import sha256
 from typing import Union, Dict, List, Optional
 
+import numpy as np
+
 from src.functions.__const__ import HASH_LENGTH
 from src.functions.lsf_script import create_lsf_script_sweep
 from src.functions.run_sim import run_sweep
@@ -32,7 +34,7 @@ SETUP_SCRIPT = r'''
     frequency_sweep = {frequency_sweep};
     waveguides = {waveguides};
     
-    record_all = true;
+    record_all = {record_all};
     annotate_all = 3;
 
     addproperty("::Root Element", "simulation_of", "String", type="String");
@@ -144,6 +146,7 @@ def _main(*args, **kwargs):
         '-d', '--reciprocal', type=int, required=True,
         help='Reciprocal (-1 for non-reciprocal, 0 for reciprocal, 1 for full-reciprocal)'
     )
+    parsed_args.add_argument('--not-record-all', action="store_false", help='Do not record all')
     parsed_args.add_argument('-f', '--frequency-sweep', action="store_true", help='Sweep frequencies')
     parsed_args.add_argument('-w', '--waveguides', action="store_true", help='with waveguides')
     parsed_args.add_argument('-r', '--run', action="store_true", help='Run simulation')
@@ -167,19 +170,26 @@ def _main(*args, **kwargs):
     if parsed_args.wavelength_gap <= 0:
         raise ValueError('Wavelength gap must be positive')
 
-    hash_args = copy.deepcopy(vars(parsed_args))
-    hash_args["components"] = sorted([Component(i).short_repr for i in parsed_args.components])
-    hash_args.pop('num_resonators')
-    hash_args.pop('frequency_sweep')
-    hash_args.pop('waveguides')
-    hash_args.pop('run')
-    hash_args.pop('lsf')
-    hash_args.pop('gui')
-    hash_args.pop('slurm')
+    hash_args = {
+        "components": sorted([Component(i).short_repr for i in parsed_args.components]),
+        'wavelength': parsed_args.wavelength if not parsed_args.frequency_sweep else None,
+        'wavelength_gap': parsed_args.wavelength_gap if not parsed_args.frequency_sweep else None,
+        'laser_power': parsed_args.laser_power,
+        'wg_insertion_loss': parsed_args.wg_insertion_loss,
+        'dc_insertion_loss': parsed_args.dc_insertion_loss,
+        'bend_insertion_loss': parsed_args.bend_insertion_loss,
+        'straight_waveguide_length': parsed_args.straight_waveguide_length,
+        'straight_n_eff': parsed_args.straight_n_eff,
+        'straight_n_grp': parsed_args.straight_n_grp,
+        'bend_n_eff': parsed_args.bend_n_eff,
+        'bend_n_grp': parsed_args.bend_n_grp,
+    }
     hash_name = sha256(json.dumps(hash_args, sort_keys=True).encode("utf-8")).hexdigest()[:HASH_LENGTH]
     script_name = (
         f'simulation_'
         f'{int(parsed_args.num_resonators)}'
+        f'{int(np.sign(parsed_args.reciprocal) + 1)}'
+        f'{int(parsed_args.not_record_all)}'
         f'{int(parsed_args.frequency_sweep)}'
         f'{int(parsed_args.waveguides)}'
         f'_{hash_name}'
@@ -193,7 +203,10 @@ def _main(*args, **kwargs):
 
     setup_script = SETUP_SCRIPT
     setup_script = setup_script.replace('{simulation_of}', f"{json.dumps(parsed_args.components)!r}")
-    for k, v in vars(parsed_args).items():
+    script_args = copy.deepcopy(vars(parsed_args))
+    script_args.pop('components')
+    script_args['record_all'] = script_args['not_record_all']
+    for k, v in script_args.items():
         if isinstance(v, bool):
             setup_script = setup_script.replace(f'{{{k}}}', str(v).lower())
         else:
