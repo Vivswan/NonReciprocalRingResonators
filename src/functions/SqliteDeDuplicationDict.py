@@ -37,6 +37,7 @@ class SqliteDeDuplicationDict(MutableMapping):
         })
 
         self.main_dict = DeDuplicationDict()
+        self.main_dict.hash_length = 32
         self.main_dict.value_dict = self.value_dict
         self.main_dict.key_dict = self.key_dict
 
