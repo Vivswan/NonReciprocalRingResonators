@@ -122,10 +122,11 @@ def _main(*args, **kwargs):
         '--wg-insertion-loss', type=float, default=3, help='Waveguide Insertion loss (dB/cm), default: 3 dB/cm'
     )
     parsed_args.add_argument(
-        '--dc-insertion-loss', type=float, default=0.5, help='DC Insertion loss (dB), default: 0.5 dB'
+        '--dc-insertion-loss', type=float, default=0.05, help='DC Insertion loss (dB), default: 0.5 dB'
     )
     parsed_args.add_argument(
-        '--bend-insertion-loss', type=float, default=0.04, help='Bend Insertion loss (dB/2pi), default: 0.04 dB/2pi'
+        # 2 * math.pi * 20e-6 * 3e2 = 0.0377
+        '--bend-insertion-loss', type=float, default=0.0377, help='Bend Insertion loss (dB/2pi), default: 0.04 dB/2pi'
     )
     parsed_args.add_argument(
         '--straight-waveguide-length', type=float, default=100, help='Straight waveguide (nm), default: 100 nm'
@@ -175,12 +176,12 @@ def _main(*args, **kwargs):
         'wavelength': parsed_args.wavelength if not parsed_args.frequency_sweep else None,
         'wavelength_gap': parsed_args.wavelength_gap if not parsed_args.frequency_sweep else None,
         'laser_power': parsed_args.laser_power,
-        'wg_insertion_loss': parsed_args.wg_insertion_loss,
+        'wg_insertion_loss': parsed_args.wg_insertion_loss if parsed_args.waveguides else None,
         'dc_insertion_loss': parsed_args.dc_insertion_loss,
         'bend_insertion_loss': parsed_args.bend_insertion_loss,
-        'straight_waveguide_length': parsed_args.straight_waveguide_length,
-        'straight_n_eff': parsed_args.straight_n_eff,
-        'straight_n_grp': parsed_args.straight_n_grp,
+        'straight_waveguide_length': parsed_args.straight_waveguide_length if parsed_args.waveguides else None,
+        'straight_n_eff': parsed_args.straight_n_eff if parsed_args.waveguides else None,
+        'straight_n_grp': parsed_args.straight_n_grp if parsed_args.waveguides else None,
         'bend_n_eff': parsed_args.bend_n_eff,
         'bend_n_grp': parsed_args.bend_n_grp,
     }
