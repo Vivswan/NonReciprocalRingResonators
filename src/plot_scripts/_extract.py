@@ -7,7 +7,7 @@ from src.compile_data import SqliteDeDuplicationDict
 def extract(data: SqliteDeDuplicationDict, *args):
     results = []
 
-    for v in tqdm(data.values(), ascii=True, desc=f"Extracting {'|'.join(args)}"):
+    for v in tqdm(data.values(), ascii=True, desc=f"Extracting {'|'.join(args)!r}"):
         try:
             for arg in args:
                 v = v[arg]
