@@ -1,5 +1,6 @@
 import pickle
 from hashlib import sha256
+from typing import Sequence
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -24,31 +25,42 @@ def simulation_1(name, force=False):
         "transmission": ("results|::Root Element::OSA_R_1_rt|mode 1/signal|values", db_to_watts),
         # "frequency": "results|::Root Element::OSA_R_1_rt|mode 1/signal|Frequency",
     }
-    for k, v in parameters.items():
-        if k.startswith("_"):
-            continue
+    
+    hash_str = [(k, v[0] if isinstance(v, Sequence) else v) for k, v in parameters.items()]
+    hash_str = str(sorted(hash_str))
+    full_cache_file = name + "_" + sha256(hash_str.encode("utf-8")).hexdigest()[:HASH_LENGTH] + ".pkl"
+    if get_cache_path().joinpath(full_cache_file).exists(): 
+        parameters = pickle.load(get_cache_path().joinpath(full_cache_file).open("rb"))
+        
+    else:
+        for k, v in parameters.items():
+            if k.startswith("_"):
+                continue
 
-        if not isinstance(v, tuple):
-            v = (v, None)
+            if not isinstance(v, tuple):
+                v = (v, None)
 
-        parameter_loc = v[0]
-        parameter_func = v[1]
-        cache_file = name + "_" + sha256(parameter_loc.encode("utf-8")).hexdigest()[:HASH_LENGTH] + ".pkl"
-        if get_cache_path().joinpath(cache_file).exists() and not force:
-            value = pickle.load(get_cache_path().joinpath(cache_file).open("rb"))
-            print(f"Loaded {cache_file}")
-        else:
-            with load_data(name) as data:
-                value = extract(data, *parameter_loc.format(i=1).split("|"))
-            pickle.dump(value, get_cache_path().joinpath(cache_file).open("wb"))
+            parameter_loc = v[0]
+            parameter_func = v[1]
+            cache_file = name + "_" + sha256(parameter_loc.encode("utf-8")).hexdigest()[:HASH_LENGTH] + ".pkl"
+            if get_cache_path().joinpath(cache_file).exists() and not force:
+                value = pickle.load(get_cache_path().joinpath(cache_file).open("rb"))
+                print(f"Loaded {cache_file}")
+            else:
+                with load_data(name) as data:
+                    value = extract(data, *parameter_loc.format(i=1).split("|"))
+                pickle.dump(value, get_cache_path().joinpath(cache_file).open("wb"))
 
-        if k == "transmission":
-            value = np.array([(np.min(x), np.max(x)) for x in value])
+            if k == "transmission":
+                value = np.array([(np.min(x), np.max(x)) for x in value])
 
-        if parameter_func is not None:
-            value = parameter_func(value)
+            if parameter_func is not None:
+                value = parameter_func(value)
 
-        parameters[k] = value
+            parameters[k] = value
+        
+        pickle.dump(parameters, get_cache_path().joinpath(full_cache_file).open("wb"))
+        print(f"Saved {full_cache_file}")
 
     fig, ax = plt.subplots(1, 1)
     parameters["T"] = parameters["transmission"] * 1e3
@@ -70,6 +82,6 @@ def simulation_1(name, force=False):
 
 
 if __name__ == '__main__':
-    simulation_1("simulation_10010_107ac0a2")
-    simulation_1("simulation_11010_107ac0a2")
-    simulation_1("simulation_12010_107ac0a2")
+    simulation_1("simulation_10110_7806f8af")
+    simulation_1("simulation_11110_7806f8af")
+    simulation_1("simulation_12110_7806f8af")
