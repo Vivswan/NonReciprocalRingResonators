@@ -164,8 +164,7 @@ def load_data(
     if location is None:
         db_location = get_results_path().joinpath(f"{script_name}.sqlite").absolute()
     else:
-        location = Path(location).expanduser().absolute()
-        db_location = location.parent.joinpath(f"{location.name}.sqlite").absolute()
+        db_location = Path(location).expanduser().absolute()
 
     if not db_location.exists() or force:
         db_location = compile_data(location, db_location=db_location, **kwargs)

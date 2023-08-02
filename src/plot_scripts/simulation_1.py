@@ -90,7 +90,6 @@ def simulation_1_transmission(name, force=False):
 
     ax.scatter(parameters["t"], parameters["T_min"], s=1, label="min")
     ax.scatter(parameters["t"], parameters["T_max"], s=1, label="max")
-    ax.scatter(parameters["t"], parameters["ER_n"], s=1, label="ER_n")
     ax.set_xlabel("t")
     ax.set_ylabel("T")
     ax.set_xlim(0, 1)
@@ -106,7 +105,7 @@ def simulation_1_transmission(name, force=False):
 def simulation_1_frequency(name, n=10, force=False):
     parameters = {
         "coupling": "properties|::Root Element::R_1|coupling",
-        "transmission": ("results|::Root Element::OSA_R_1_rt|mode 1/signal|values", db_to_watts),
+        "transmission": "results|::Root Element::OSA_R_1_rt|mode 1/signal|values",
         "frequency": "results|::Root Element::OSA_R_1_rt|mode 1/signal|Frequency",
     }
 
