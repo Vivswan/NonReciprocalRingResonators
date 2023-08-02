@@ -8,7 +8,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     #main__ = currentscriptname;
 
     full_reciprocal = false;
-    waveguides = true;
+    waveguides = false;
     record_all = true;
     annotate_all = 0;
 }

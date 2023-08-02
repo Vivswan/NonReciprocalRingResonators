@@ -7,7 +7,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     clear;
     #main__ = currentscriptname;
 
-    waveguides = true;
+    waveguides = false;
     record_all = true;
     annotate_all = 3;
 }

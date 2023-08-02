@@ -13,8 +13,8 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     laser_power = 1e-3;
     
     full_reciprocal = true;
-    frequency_sweep = false;
-    waveguides = true;
+    frequency_sweep = true;
+    waveguides = false;
     record_all = true;
     annotate_all = 0;
 }

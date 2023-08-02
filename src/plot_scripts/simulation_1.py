@@ -69,7 +69,7 @@ def get_parameters(name, parameters, force):
 def simulation_1_transmission(name, force=False):
     parameters = {
         "coupling": "properties|::Root Element::R_1|coupling",
-        "transmission": ("results|::Root Element::OSA_R_1_rt|mode 1/signal|values", lambda x: db_to_watts(min_max(x))),
+        "transmission": ("results|::Root Element::OSA_R_1_rt|mode 1/signal|values", min_max),
     }
 
     hash_str = [(k, v[0] if isinstance(v, Sequence) else v) for k, v in parameters.items()]
@@ -83,17 +83,14 @@ def simulation_1_transmission(name, force=False):
         print(f"Saved {full_cache_file}")
 
     fig, ax = plt.subplots(1, 1)
-    parameters["T"] = parameters["transmission"] * 1e3
+    parameters["T"] = db_to_watts(parameters["transmission"]) * 1e3
     parameters["T_min"] = parameters["T"][:, 0]
     parameters["T_max"] = parameters["T"][:, 1]
     parameters["t"] = 1 - parameters["coupling"]
-    parameters["ER_n"] = np.nan_to_num(parameters["T_max"] - parameters["T_min"])
-    max_er_t = parameters["t"][np.argmax(parameters["ER_n"])]
 
     ax.scatter(parameters["t"], parameters["T_min"], s=1, label="min")
     ax.scatter(parameters["t"], parameters["T_max"], s=1, label="max")
     ax.scatter(parameters["t"], parameters["ER_n"], s=1, label="ER_n")
-    ax.axvline(max_er_t, color="black", linestyle="--", label=f"max ER_n (t={max_er_t:.3f})")
     ax.set_xlabel("t")
     ax.set_ylabel("T")
     ax.set_xlim(0, 1)
