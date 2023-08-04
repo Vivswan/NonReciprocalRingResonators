@@ -91,6 +91,7 @@ def mat_to_db(location: Union[str, Path], db_location: Optional[Union[str, Path]
 def compile_data(
         location: Optional[Union[str, Path]],
         db_location: Optional[Union[str, Path]] = None,
+        with_log: bool = False,
         with_tqdm: bool = True,
         use_multiprocessing: bool = True,
         override: bool = False,
@@ -142,13 +143,15 @@ def compile_data(
             mat_to_db(file, db_location=db_location, delete=delete)
 
     with SqliteDeDuplicationDict(db_location) as db:
-        for file in sqlite_files:
+        for i, file in enumerate(sqlite_files):
             with SqliteDeDuplicationDict(file, flag="r") as run_db:
                 for key in run_db:
                     if key in db:
                         continue
                     db[key] = run_db[key]
-
+            if with_log:
+                print(f"{i + 1}/{len(sqlite_files)}: {file.name}")
+    
     return db_location
 
 
@@ -179,6 +182,7 @@ def _main():
     args.add_argument("-d", "--db_location", type=str, default=None, help="Location of the data to compile")
     args.add_argument("-o", "--override", action="store_true", help="Override existing data")
     args.add_argument("-r", "--remove", action="store_true", help="Delete mat files after compilation")
+    args.add_argument("-c", "--with_console_log", action="store_true", help="Print log to console")
     args.add_argument("-p", "--no_progress_bar", action="store_false", help="Disable progress bar")
     args.add_argument("-m", "--no_multiprocessing", action="store_false", help="Disable multiprocessing")
     args = args.parse_args()
@@ -191,12 +195,16 @@ def _main():
 
     if args.location is None:
         args.location = get_results_path().joinpath(args.script_name).absolute()
+    
+    if args.no_progress_bar and args.with_console_log:
+        raise ValueError("Cannot use progress bar with console log")
 
     compile_data(
         location=args.location,
         db_location=args.db_location,
         override=args.override,
         delete=args.remove,
+        with_log=args.with_console_log,
         with_tqdm=args.no_progress_bar,
         use_multiprocessing=args.no_multiprocessing,
     )
