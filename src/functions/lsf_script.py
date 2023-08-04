@@ -79,6 +79,13 @@ def create_lsf_script_sweep(
     slurm_lsf = slurm_lsf.replace("@DataDirectoryLocation@", data_location_str)
     location.joinpath(f"{script_name}.lsf.slurm").write_text(slurm_lsf, encoding="utf-8")
 
+    slurm_compile = get_lsf_scripts_path().joinpath("compile.slurm").read_text(encoding="utf-8")
+    slurm_compile = slurm_compile.replace("@name@", f"{script_name}_compile")
+    slurm_compile = slurm_compile.replace("@RunDirectoryLocation@", location_str)
+    slurm_compile = slurm_compile.replace("@DataDirectoryLocation@", data_location_str)
+    slurm_compile = slurm_compile.replace("@compile_data_py@", compile_data_py_str)
+    location.parent.joinpath(f"{script_name}.compile.slurm").write_text(slurm_compile, encoding="utf-8")
+
     lsf_script = get_lsf_scripts_path().joinpath("sbatch.lsf").read_text(encoding="utf-8")
     lsf_script = lsf_script.replace("@name@", f"{script_name}")
     lsf_script = lsf_script.replace("@RunDirectoryLocation@", location_str)
