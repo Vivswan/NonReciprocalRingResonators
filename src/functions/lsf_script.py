@@ -16,7 +16,7 @@ def create_lsf_script(
         parameters: Dict[str, float],
         setup_script: str,
         script_name: str,
-        index: Optional[str, int] = None,
+        index: Optional[Union[str, int]] = None,
         location: Union[str, Path] = get_lsf_path()
 ) -> Path:
     location = Path(location).expanduser().absolute()

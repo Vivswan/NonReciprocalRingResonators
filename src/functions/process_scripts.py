@@ -79,7 +79,7 @@ def process_scripts(
         location: Union[Path, str],
         setup_script: str,
         script_name: str,
-        index: Optional[str, int] = None,
+        index: Optional[Union[str, int]] = None,
 ) -> Tuple[str, str]:
     parameters = [(k, v if isinstance(v, str) else f"{v:.12f}") for k, v in parameters.items()]
     parameters = {k: v for k, v in parameters if v is not None}
