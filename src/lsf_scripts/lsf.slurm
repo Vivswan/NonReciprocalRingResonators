@@ -18,6 +18,8 @@ module load intel intel-mpi lumerical;
 OutFileLocation="${HOME}/slurm_${SLURM_JOB_NAME}_${SLURM_JOB_ID}.log";
 RunDirectoryLocation="@RunDirectoryLocation@";
 DataDirectoryLocation="@DataDirectoryLocation@";
+echo "SLURM_JOB_NAME: ${SLURM_JOB_NAME}";
+echo "SLURM_JOB_ID: ${SLURM_JOB_ID}";
 echo "OutFileLocation: ${OutFileLocation}";
 echo "RunDirectoryLocation: ${RunDirectoryLocation}";
 echo "DataDirectoryLocation: ${DataDirectoryLocation}";
@@ -52,6 +54,7 @@ echo "####################################### Main Program: Starting ###########
 cd $RunDirectoryLocation || exit 1;
 
 EXIT_CODE=1;
+LAST_MODIFIED_TIME=$(date +%s);
 for (( i = 1; i < 4; i++ )); do
   echo "${i}th attempt";
   srun interconnect-batch -logall -trust-script "@name@.sbatch.lsf" >> $OutFileLocation 2>&1 &
@@ -66,6 +69,21 @@ for (( i = 1; i < 4; i++ )); do
       break;
     fi
 
+    if [ -f "$SLURM_JOB_ID.run.txt" ]; then
+      LAST_MODIFIED_TIME=$(stat -c %Y "$SLURM_JOB_ID.run.txt");
+      cat "$SLURM_JOB_ID.run.txt";
+      rm "$SLURM_JOB_ID.run.txt";
+    fi
+
+    current_time=$(date +%s);
+    time_difference=$((current_time - LAST_MODIFIED_TIME));
+    if [ $time_difference -gt 600 ]; then
+      echo "No progress in the 10 minutes. Killing the process";
+      kill -15 $process_id;
+      kill -9 $process_id;
+      break;
+    fi
+    
     sleep 10;
   done
 

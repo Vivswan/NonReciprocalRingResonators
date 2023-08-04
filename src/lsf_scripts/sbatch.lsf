@@ -33,6 +33,7 @@ for(0; true; 0) {
     
     if (number_of_lsf == 0){
         write(lumerical_id + ".completed.txt", "completed", "overwrite");
+        rm(lumerical_id + ".run.txt");
         exit;
     }
     
@@ -52,6 +53,7 @@ for(0; true; 0) {
     error_msg = "";
     try {
         print("Starting... " + running_filename);
+        write(lumerical_id + ".run.txt", "Starting... " + running_filename, "append");
         mv(random_filename, running_filename);
         preserve_me = lumerical_id + "\n" + random_filename;
         feval(running_filename);
@@ -64,6 +66,8 @@ for(0; true; 0) {
         try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".icp"));} catch(error_msg);
         try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".ich"));} catch(error_msg);
         try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".log"));} catch(error_msg);
+        print("Sqlite... " + running_filename);
+        write(lumerical_id + ".run.txt", "Sqlite... " + running_filename, "append");
         try {
             mat_file = replacestring(random_filename, ".run.lsf", ".mat");
             sqlite_file = replacestring(random_filename, ".run.lsf", ".sqlite");
@@ -78,9 +82,10 @@ for(0; true; 0) {
 
             mv(running_filename, completed_filename);
             print("Completed... " + running_filename);
+            write(lumerical_id + ".run.txt", "Completed... " + running_filename, "append");
         } catch(error_msg);
-        if (length(error_msg) > 1) { print("!!! Error... python ^^^^ : " + error_msg); ?("!!! Error... python ^^^^ : " + error_msg); }
+        if (length(error_msg) > 1) { print("!!! Error... python ^^^^ : " + error_msg); write(lumerical_id + ".run.txt", "!!! Error... python ^^^^ : " + error_msg, "append"); }
     } catch(error_msg);
-    if (length(error_msg) > 1){ print("!!! Error... lumerical ^^^^ : " + error_msg); ?("!!! Error... lumerical ^^^^ : " + error_msg); }
+    if (length(error_msg) > 1){ print("!!! Error... lumerical ^^^^ : " + error_msg); write(lumerical_id + ".run.txt", "!!! Error... lumerical ^^^^ : " + error_msg, "append"); }
     pause(1);
 }
