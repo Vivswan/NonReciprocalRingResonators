@@ -79,8 +79,8 @@ for(0; true; 0) {
             mv(running_filename, completed_filename);
             print("Completed... " + running_filename);
         } catch(error_msg);
-        if (length(error_msg) > 1) { print("!!! Error... python ^^^^ : " + error_msg); }
+        if (length(error_msg) > 1) { print("!!! Error... python ^^^^ : " + error_msg); ?("!!! Error... python ^^^^ : " + error_msg); }
     } catch(error_msg);
-    if (length(error_msg) > 1){ print("!!! Error... lumerical ^^^^ : " + error_msg); }
+    if (length(error_msg) > 1){ print("!!! Error... lumerical ^^^^ : " + error_msg); ?("!!! Error... lumerical ^^^^ : " + error_msg); }
     pause(1);
 }

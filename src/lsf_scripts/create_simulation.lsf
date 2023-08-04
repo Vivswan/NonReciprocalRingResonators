@@ -29,7 +29,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     annotate_all = 1;
 }
 
-if (num_resonators < 1) { print("WTF?"); break; }
+if (num_resonators < 1) { print("WTF?"); ?"WTF?"; break; }
 
 # Adding Properties
 addproperty("::Root Element", "num_resonators", "Standard", type="Number", from=-1e100, to=1e100, kind="FixedUnit", unit="", default_value=num_resonators);

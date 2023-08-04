@@ -19,7 +19,7 @@ if (length(getvariable("main__", "")) == 0 or getvariable("main__", "") == curre
     annotate_all = 0;
 }
 
-if (num_resonators < 1) { print("WTF?"); break; }
+if (num_resonators < 1) { print("WTF?"); ?"WTF?"; break; }
 
 # Adding Elements
 create_reciprocal_ring;
