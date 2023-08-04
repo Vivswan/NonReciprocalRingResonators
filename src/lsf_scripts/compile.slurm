@@ -56,8 +56,8 @@ srun rsync -av $TarGzLocation $SLURM_SCRATCH || exit 1;
 echo "Extracting $TarName.tar.gz"
 srun tar -xzf $TarGzLocation || exit 1;
 
-echo "Removing $TarGzLocation"
-srun rm $TarGzLocation || exit 1;
+echo "Removing $TarName.tar.gz"
+srun rm $TarName.tar.gz || exit 1;
 
 echo "Running compile_data.py"
 srun python @compile_data_py@ -cp -l ./$TarName || exit 1;
