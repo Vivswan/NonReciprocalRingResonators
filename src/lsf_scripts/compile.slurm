@@ -60,7 +60,7 @@ echo "Removing $TarName.tar.gz"
 srun rm $TarName.tar.gz || exit 1;
 
 echo "Running compile_data.py"
-srun python @compile_data_py@ -cp -l ./$TarName || exit 1;
+srun python @compile_data_py@ -opmc -l ./$TarName || exit 1;
 
 echo "Copying $TarName.sqlite to $ParentDir"
 srun rsync -av "${TarName}.sqlite" "${ParentDir}/" || exit 1;

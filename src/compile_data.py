@@ -4,6 +4,7 @@ import argparse
 import multiprocessing
 from functools import partial
 from pathlib import Path
+import shutil
 from typing import Union, Optional
 
 import mat73
@@ -90,7 +91,7 @@ def mat_to_db(location: Union[str, Path], db_location: Optional[Union[str, Path]
 
 def compile_data(
         location: Optional[Union[str, Path]],
-        db_location: Optional[Union[str, Path]] = None,
+        db_location: Optional[Union[str, Path]],
         with_log: bool = False,
         with_tqdm: bool = True,
         use_multiprocessing: bool = True,
@@ -98,14 +99,10 @@ def compile_data(
         delete: bool = False,
 ) -> Path:
     location = Path(location).expanduser().absolute()
+    db_location = Path(db_location).expanduser().absolute()
 
     if not location.exists():
         raise ValueError(f"Location {location} does not exist")
-
-    if db_location is None:
-        db_location = location.parent.joinpath(f"{location.name}.sqlite")
-    else:
-        db_location = Path(db_location).expanduser().absolute()
 
     if location.is_file():
         if location.suffix != ".mat":
@@ -177,14 +174,15 @@ def load_data(
 
 def _main():
     args = argparse.ArgumentParser(description="Compile data from lumerical mat files")
-    args.add_argument("-s", "--script_name", type=str, default=None, help="Name of the script to compile data for")
+    args.add_argument("-s", "--script-name", type=str, default=None, help="Name of the script to compile data for")
     args.add_argument("-l", "--location", type=str, default=None, help="Location of the data to compile")
-    args.add_argument("-d", "--db_location", type=str, default=None, help="Location of the data to compile")
+    args.add_argument("-d", "--db-location", type=str, default=None, help="Location of the data to compile")
+    args.add_argument("-q", "--quick-location", type=str, default=None, help="Quick access location")
     args.add_argument("-o", "--override", action="store_true", help="Override existing data")
     args.add_argument("-r", "--remove", action="store_true", help="Delete mat files after compilation")
-    args.add_argument("-c", "--with_console_log", action="store_true", help="Print log to console")
-    args.add_argument("-p", "--no_progress_bar", action="store_false", help="Disable progress bar")
-    args.add_argument("-m", "--no_multiprocessing", action="store_false", help="Disable multiprocessing")
+    args.add_argument("-c", "--with-console-log", action="store_true", help="Print log to console")
+    args.add_argument("-p", "--no-progress_bar", action="store_false", help="Disable progress bar")
+    args.add_argument("-m", "--no-multiprocessing", action="store_false", help="Disable multiprocessing")
     args = args.parse_args()
 
     if args.script_name is None and args.location is None:
@@ -195,9 +193,25 @@ def _main():
 
     if args.location is None:
         args.location = get_results_path().joinpath(args.script_name).absolute()
+    else:
+        args.location = Path(args.location).expanduser().absolute()
     
+    if args.db_location is None:
+        args.db_location = args.location.parent.joinpath(f"{args.location.name}.sqlite")
+    else:
+        args.db_location = Path(args.db_location).expanduser().absolute()
+
     if args.no_progress_bar and args.with_console_log:
         raise ValueError("Cannot use progress bar with console log")
+
+    using_quick_location = False
+    if args.quick_location is not None:
+        args.quick_location = Path(args.quick_location).expanduser().absolute()
+
+        if args.quick_location.exists() and args.quick_location.is_dir():
+            args.old_db_location = args.db_location
+            args.db_location = args.quick_location.joinpath(args.db_location.name)
+            using_quick_location = True
 
     compile_data(
         location=args.location,
@@ -209,6 +223,9 @@ def _main():
         use_multiprocessing=args.no_multiprocessing,
     )
 
+    if using_quick_location:
+        shutil.move(args.db_location, args.old_db_location)
+        
 
 if __name__ == '__main__':
     _main()
