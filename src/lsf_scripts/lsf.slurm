@@ -6,6 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --tasks-per-node=1
 #SBATCH --cpus-per-task=2
+#SBATCH --mem=8G
 #SBATCH --cluster=smp
 #SBATCH --partition=smp
 #SBATCH --time=1-00:00:00
@@ -30,7 +31,7 @@ run_on_exit() {
   echo "";
   echo "####################################### Billing #######################################";
   echo "";
-  sacct -M smp -j "$SLURM_JOBID" --format=AllocTRES%50,elapsed;
+  sacct -M $SLURM_CLUSTER_NAME -j $SLURM_JOBID --format=AllocTRES%50,elapsed;
   echo "";
 
   echo "";
