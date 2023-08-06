@@ -68,6 +68,10 @@ if [ ! -f "$TarGzLocation" ]; then
   echo "";
   echo "!!!!!! Copying './${TarName}.tar.gz' to '${ParentDir}/' !!!!!!!"
   srun rsync -av "./${TarName}.tar.gz" "${ParentDir}/" || exit 1;
+
+  echo "";
+  echo "!!!!!! Removing '${DataDirectoryLocation}' !!!!!!!"
+  srun rm -rfv $DataDirectoryLocation || exit 1;
 else
   echo "";
   echo "!!!!!! Copying '${TarGzLocation}' to '${SLURM_SCRATCH}/' !!!!!!!"
