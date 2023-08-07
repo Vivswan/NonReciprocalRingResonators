@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import argparse
 import multiprocessing
+import shutil
 from functools import partial
 from pathlib import Path
-import shutil
 from typing import Union, Optional
 
 import mat73
@@ -148,7 +148,7 @@ def compile_data(
                     db[key] = run_db[key]
             if with_log:
                 print(f"{i + 1}/{len(sqlite_files)}: {file.name}")
-    
+
     return db_location
 
 
@@ -187,7 +187,7 @@ def _main():
         args.location = get_results_path().joinpath(args.script_name).absolute()
     else:
         args.location = Path(args.location).expanduser().absolute()
-    
+
     if args.db_location is None:
         args.db_location = args.location.parent.joinpath(f"{args.location.name}.sqlite")
     else:
@@ -217,7 +217,7 @@ def _main():
 
     if using_quick_location:
         shutil.move(args.db_location, args.old_db_location)
-        
+
 
 if __name__ == '__main__':
     _main()
