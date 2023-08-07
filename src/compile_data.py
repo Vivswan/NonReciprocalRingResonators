@@ -153,21 +153,13 @@ def compile_data(
 
 
 def load_data(
-        script_name: Optional[str] = None,
         location: Optional[Union[str, Path]] = None,
-        force=False,
         **kwargs
 ) -> SqliteDeDuplicationDict:
-    if location is None and script_name is None:
-        raise ValueError("Either script_name or location must be specified")
+    db_location = Path(location).expanduser().absolute()
 
-    if location is None:
-        db_location = get_results_path().joinpath(f"{script_name}.sqlite").absolute()
-    else:
-        db_location = Path(location).expanduser().absolute()
-
-    if not db_location.exists() or force:
-        db_location = compile_data(location, db_location=db_location, **kwargs)
+    if not db_location.exists():
+        raise ValueError(f"Location {db_location} does not exist")
 
     return SqliteDeDuplicationDict(db_location, flag="r", **kwargs)
 
