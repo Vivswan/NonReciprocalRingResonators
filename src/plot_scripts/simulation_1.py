@@ -51,21 +51,27 @@ def simulation_1_transmission(location, force=False):
 
 
 def simulation_1_frequency(location, n=10, force=False):
+    print(f"Plotting {location.stem}")
     location = Path(location)
+    is_reciprocal = location.stem.split("_")[1][1] != "0"
     parameters = {
         "coupling": "properties|::Root Element::R_1|coupling",
-        "transmission": "results|::Root Element::OSA_R_1_rt|mode 1/signal|values",
-        "frequency": "results|::Root Element::OSA_R_1_rt|mode 1/signal|Frequency",
+        "t_1": "results|::Root Element::OSA_R_1_rt|mode 1/signal|values",
+        "t_2": f"results|::Root Element::OSA_R_1_{'lb' if is_reciprocal else 'rb'}|mode 1/signal|values",
+        "f_1": "results|::Root Element::OSA_R_1_rt|mode 1/signal|Frequency",
+        "f_2": f"results|::Root Element::OSA_R_1_{'lb' if is_reciprocal else 'rb'}|mode 1/signal|Frequency",
     }
 
     parameters = get_parameters(location, parameters, force)
 
-    for i in np.linspace(0, len(parameters["frequency"]) - 1, n, dtype=int):
+    for i in np.linspace(0, len(parameters["f_1"]) - 1, n, dtype=int):
         fig, ax = plt.subplots(1, 1)
-        ax.plot(parameters["frequency"][i], parameters["transmission"][i])
+        ax.plot(parameters["f_1"][i], parameters["t_1"][i], label="Signal 1")
+        ax.plot(parameters["f_2"][i], parameters["t_2"][i], label="Signal 2")
         ax.set_xlabel("Frequency (THz)")
-        ax.set_ylabel("Transmission (W)")
-        ax.set_title(f"Simulation 1\n{location.stem}\n{parameters['coupling'][i]:.3f} coupling")
+        ax.set_ylabel("Signal (dBm)")
+        ax.set_title(f"Simulation 1: {location.stem}\n{parameters['coupling'][i]:.3f} coupling")
+        ax.legend()
         plt.tight_layout()
         plt.savefig(get_plots_path() / f"{location.stem}_frequency_{i}.png", dpi=600)
         plt.show()
@@ -74,7 +80,7 @@ def simulation_1_frequency(location, n=10, force=False):
 
 if __name__ == '__main__':
     basepath = get_results_path()
-    # basepath = Path(r"/scratch/slurm-2039072")
+    # basepath = Path(r"/scratch/slurm-2039166")
     simulation_1_transmission(basepath / "simulation_10110_7806f8af.sqlite")
     simulation_1_transmission(basepath / "simulation_11110_7806f8af.sqlite")
     simulation_1_transmission(basepath / "simulation_12110_7806f8af.sqlite")

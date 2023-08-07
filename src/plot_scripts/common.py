@@ -37,6 +37,7 @@ def get_parameter(location, parameter_loc, force=False):
         value = pickle.load(get_cache_path().joinpath(cache_file).open("rb"))
         print(f"Loaded {parameter_loc!r} from {cache_file!r}")
     else:
+        print(f"Loading {parameter_loc!r} from {str(location)!r}")
         with load_data(location=location) as data:
             value = extract(data, *parameter_loc.format(i=1).split("|"))
         pickle.dump(value, get_cache_path().joinpath(cache_file).open("wb"))
