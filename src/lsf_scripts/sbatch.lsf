@@ -20,7 +20,7 @@ for(0; true; 0) {
         if (lumerical_id == "$SLURM_JOB_ID ") {lumerical_id = random_id;}
         error_msg = "";
     }
-    number_of_lsf = 0;    
+    number_of_lsf = 0;
     print("ls...");
     write(lumerical_id + ".run.txt", "ls...", "append");
     files = splitstring(ls("."), "\n");
