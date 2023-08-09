@@ -85,7 +85,7 @@ for(0; true; 0) {
             mv(running_filename, completed_filename);
             print("Completed... " + running_filename);
             write(lumerical_id + ".run.txt", "Completed... " + running_filename, "append");
-            try {rm("@DataDirectoryLocation@/" + completed_filename);} catch(error_msg);
+	        try {rm(completed_filename);} catch(error_msg);
         } catch(error_msg);
         if (length(error_msg) > 1) { print("!!! Error... python ^^^^ : " + error_msg); write(lumerical_id + ".run.txt", "!!! Error... python ^^^^ : " + error_msg, "append"); }
     } catch(error_msg);

@@ -64,6 +64,7 @@ for (( i = 1; i < 4; i++ )); do
   while ps -p $process_id > /dev/null; do
     if [ -f "$SLURM_JOB_ID.completed.txt" ]; then
       EXIT_CODE=0;
+      rm "$SLURM_JOB_ID.completed.txt";
       echo "Completed Successfully";
       kill -15 $process_id;
       kill -9 $process_id;
