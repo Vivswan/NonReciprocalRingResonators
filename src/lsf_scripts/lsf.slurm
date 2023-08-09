@@ -13,7 +13,7 @@
 #SBATCH --chdir="/ihome/nyoungblood/vis77"
 #SBATCH --requeue
 
-source ~/.bashrc;
+source "${HOME}/.bashrc";
 module load intel intel-mpi lumerical;
 
 OutFileLocation="${HOME}/slurm_${SLURM_JOB_NAME}_${SLURM_JOB_ID}.log";
@@ -31,7 +31,7 @@ run_on_exit() {
   echo "";
   echo "####################################### Billing #######################################";
   echo "";
-  sacct -M $SLURM_CLUSTER_NAME -j $SLURM_JOBID --format=AllocTRES%50,elapsed;
+  sacct -M "$SLURM_CLUSTER_NAME" -j "$SLURM_JOBID" --format=AllocTRES%50,elapsed;
   echo "";
 
   echo "";
@@ -43,9 +43,9 @@ run_on_exit() {
   echo "";
   
   if [ $EXIT_CODE -eq 0 ]; then
-    echo "####################################### Main Program: Success ${RunScript} #######################################";
+    echo "####################################### Main Program: Success #######################################";
   else
-    echo "####################################### Main Program: Failure ${RunScript} #######################################";
+    echo "####################################### Main Program: Failure #######################################";
   fi
 }
 trap run_on_exit EXIT;
@@ -58,7 +58,7 @@ EXIT_CODE=1;
 LAST_MODIFIED_TIME=$(date +%s);
 for (( i = 1; i < 4; i++ )); do
   echo "${i}th attempt";
-  srun interconnect-batch -logall -trust-script "@name@.sbatch.lsf" >> $OutFileLocation 2>&1 &
+  srun interconnect-batch -logall -trust-script "@name@.sbatch.lsf" >> "${OutFileLocation}" 2>&1 &
   process_id=$!
 
   while ps -p $process_id > /dev/null; do

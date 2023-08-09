@@ -13,7 +13,7 @@
 #SBATCH --chdir="/ihome/nyoungblood/vis77"
 #SBATCH --requeue
 
-source ~/.bashrc;
+source "${HOME}/.bashrc";
 conda activate Ring-Resonator;
 
 DataDirectoryLocation="@DataDirectoryLocation@";
@@ -29,13 +29,13 @@ echo "TarGzLocation: $TarGzLocation"
 
 echo "";
 echo "!!!!!! cd $SLURM_SCRATCH !!!!!!!"
-cd $SLURM_SCRATCH || exit 1;
+cd "$SLURM_SCRATCH" || exit 1;
 
 run_on_exit() {
   echo "";
   echo "####################################### Billing #######################################";
   echo "";
-  sacct -M $SLURM_CLUSTER_NAME -j $SLURM_JOBID --format=AllocTRES%50,elapsed;
+  sacct -M "$SLURM_CLUSTER_NAME" -j "$SLURM_JOBID" --format=AllocTRES%50,elapsed;
   echo "";
 
   echo "";
@@ -63,7 +63,7 @@ if [ ! -f "$TarGzLocation" ]; then
   
   echo "";
   echo "!!!!!! Compressing '${TarName}' !!!!!!!"
-  srun tar -czvf "./${TarName}.tar.gz" $TarName || exit 1;
+  srun tar -czvf "./${TarName}.tar.gz" "${TarName}" || exit 1;
 
   echo "";
   echo "!!!!!! Copying './${TarName}.tar.gz' to '${ParentDir}/' !!!!!!!"
@@ -88,7 +88,7 @@ srun rm -v "./${TarName}.tar.gz" || exit 1;
 
 echo "";
 echo "!!!!!! Running compile_data.py !!!!!!!"
-srun python @compile_data_py@ -opmc -l ./$TarName || exit 1;
+srun python @compile_data_py@ -opmc -l "./${TarName}" || exit 1;
 
 echo "";
 echo "!!!!!! Copying '${TarName}.sqlite' to '${ParentDir}/' !!!!!!!"
