@@ -25,6 +25,7 @@ def simulation_1_transmission(location, force=False):
     full_cache_file = location.stem + "_" + sha256(hash_str.encode("utf-8")).hexdigest()[:HASH_LENGTH] + ".pkl"
     if get_cache_path().joinpath(full_cache_file).exists() and not force:
         parameters = pickle.load(get_cache_path().joinpath(full_cache_file).open("rb"))
+        print(f"Loaded {full_cache_file}")
     else:
         parameters = get_parameters(location, parameters, force)
         pickle.dump(parameters, get_cache_path().joinpath(full_cache_file).open("wb"))
@@ -70,20 +71,28 @@ def simulation_1_frequency(location, n=10, force=False):
         ax.plot(parameters["f_2"][i], parameters["t_2"][i], label="Signal 2")
         ax.set_xlabel("Frequency (THz)")
         ax.set_ylabel("Signal (dBm)")
-        ax.set_title(f"Simulation 1: {location.stem}\n{parameters['coupling'][i]:.3f} coupling")
+        ax.set_title(f"Simulation 1: {location.stem}\n{parameters['coupling'][i]:.3f} coupling\n")
+        ax2 = ax.twiny()
+        ax2.set_xticks(ax.get_xticks())
+        ax2.set_xbound(ax.get_xbound())
+        ax2.set_xticklabels([f"{3e8 * 1e9 / x:.1f}" for x in ax.get_xticks()])
+        ax2.set_xlabel('Wavelength (nm)')
         ax.legend()
         plt.tight_layout()
         plt.savefig(get_plots_path() / f"{location.stem}_frequency_{i}.png", dpi=600)
         plt.show()
         plt.close(fig)
+        print(f"Saved {location.stem}_frequency_{i}.png")
 
 
 if __name__ == '__main__':
     basepath = get_results_path()
-    # basepath = Path(r"/scratch/slurm-2039166")
-    simulation_1_transmission(basepath / "simulation_10110_7806f8af.sqlite")
-    simulation_1_transmission(basepath / "simulation_11110_7806f8af.sqlite")
-    simulation_1_transmission(basepath / "simulation_12110_7806f8af.sqlite")
-    simulation_1_frequency(basepath / "simulation_10110_7806f8af.sqlite")
-    simulation_1_frequency(basepath / "simulation_11110_7806f8af.sqlite")
-    simulation_1_frequency(basepath / "simulation_12110_7806f8af.sqlite")
+    slurm_id = 2040737
+    get_cache_path = lambda: Path(rf"/scratch/slurm-{slurm_id}/cache")
+    # basepath = Path(rf"/scratch/slurm-{slurm_id}")
+    simulation_1_transmission(basepath / "simulation_7806f8af_10110.sqlite")
+    simulation_1_transmission(basepath / "simulation_7806f8af_11110.sqlite")
+    simulation_1_transmission(basepath / "simulation_7806f8af_12110.sqlite")
+    # simulation_1_frequency(basepath / "simulation_7806f8af_10110.sqlite")
+    # simulation_1_frequency(basepath / "simulation_7806f8af_11110.sqlite")
+    # simulation_1_frequency(basepath / "simulation_7806f8af_12110.sqlite")
