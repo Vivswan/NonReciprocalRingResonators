@@ -8,3 +8,5 @@ def get_cache_path():
 def clear_cache():
     for file in get_cache_path().glob("*.json"):
         file.unlink()
+    for file in get_cache_path().glob("*.pkl"):
+        file.unlink()
