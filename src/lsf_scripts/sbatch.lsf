@@ -68,7 +68,6 @@ for(0; true; 0) {
         try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".icp"));} catch(error_msg);
         try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".ich"));} catch(error_msg);
         try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".log"));} catch(error_msg);
-        try {rm("@DataDirectoryLocation@/" + replacestring(random_filename, ".run.lsf", ".completed.lsf"));} catch(error_msg);
         print("Sqlite... " + running_filename);
         write(lumerical_id + ".run.txt", "Sqlite... " + running_filename, "append");
         try {
@@ -86,6 +85,7 @@ for(0; true; 0) {
             mv(running_filename, completed_filename);
             print("Completed... " + running_filename);
             write(lumerical_id + ".run.txt", "Completed... " + running_filename, "append");
+            try {rm("@DataDirectoryLocation@/" + completed_filename);} catch(error_msg);
         } catch(error_msg);
         if (length(error_msg) > 1) { print("!!! Error... python ^^^^ : " + error_msg); write(lumerical_id + ".run.txt", "!!! Error... python ^^^^ : " + error_msg, "append"); }
     } catch(error_msg);
