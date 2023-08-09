@@ -103,6 +103,9 @@ def _main(*args, **kwargs):
     parsed_args = argparse.ArgumentParser(description='Run Ring Resonator component sweep')
 
     parsed_args.add_argument(
+        '--ename', type=str, default=None, help='Experiment num/name'
+    )
+    parsed_args.add_argument(
         '-c', '--components', type=str, nargs='+', required=True,
         help=f'Components to sweep, format: {Component.instruction_syntax!r}'
     )
@@ -186,14 +189,18 @@ def _main(*args, **kwargs):
         'bend_n_grp': parsed_args.bend_n_grp,
     }
     hash_name = sha256(json.dumps(hash_args, sort_keys=True).encode("utf-8")).hexdigest()[:HASH_LENGTH]
+
+    prefix_name = f"simulation_"
+    if parsed_args.ename is not None:
+        prefix_name = f"simulation_{parsed_args.ename}"
     script_name = (
-        f'simulation_'
-        f'{int(parsed_args.num_resonators)}'
+        f'{prefix_name}'
+        f'_{hash_name}'
+        f'_{int(parsed_args.num_resonators)}'
         f'{int(np.sign(parsed_args.reciprocal) + 1)}'
         f'{int(parsed_args.not_record_all)}'
         f'{int(parsed_args.frequency_sweep)}'
         f'{int(parsed_args.waveguides)}'
-        f'_{hash_name}'
     )
     print(f"Script name: {script_name}")
 
