@@ -53,7 +53,7 @@ def simulation_1_transmission(location, force=False):
 def simulation_1_frequency(location, n=10, force=False):
     print(f"Plotting {location.stem}")
     location = Path(location)
-    is_reciprocal = location.stem.split("_")[1][1] != "0"
+    is_reciprocal = location.stem.split("_")[3][1] != "0"
     parameters = {
         "coupling": "properties|::Root Element::R_1|coupling",
         "t_1": "results|::Root Element::OSA_R_1_rt|mode 1/signal|values",
