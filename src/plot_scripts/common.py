@@ -56,7 +56,7 @@ def get_parameter(location, parameter_loc, force=False, cache_only=False):
     if cache_file.exists() and not force:
         if cache_only:
             return None
-        
+
         value = pickle.load(cache_file.open("rb"))
         print(f"Loaded {parameter_loc!r} from {str(cache_file)!r}")
     else:

@@ -8,8 +8,9 @@ from matplotlib import pyplot as plt
 
 from src.functions.__const__ import HASH_LENGTH
 from src.plot_scripts.common import db_to_watts, min_max, get_parameters
-from z_outputs.cache import get_cache_path, set_cache_path
+from z_outputs.cache import get_cache_path
 from z_outputs.plots import get_plots_path
+from z_outputs.results import get_results_path
 
 
 def simulation_1_transmission(location, force=False):
@@ -85,10 +86,10 @@ def simulation_1_frequency(location, n=10, force=False):
 
 
 if __name__ == '__main__':
-    # basepath = get_results_path()
-    slurm_id = 2041250
-    basepath = Path(rf"/scratch/slurm-{slurm_id}")
-    set_cache_path(Path(rf"/scratch/slurm-{slurm_id}/cache"))
+    basepath = get_results_path()
+    # slurm_id = 2041250
+    # basepath = Path(rf"/scratch/slurm-{slurm_id}")
+    # set_cache_path(Path(rf"/scratch/slurm-{slurm_id}/cache"))
     print(f"basepath: {basepath}")
     print(f"get_cache_path: {get_cache_path()}")
     simulation_1_transmission(basepath / "simulation_1_7806f8af_10110.sqlite")

@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from src.plot_scripts.common import get_parameters
-from z_outputs.cache import get_cache_path, set_cache_path
+from z_outputs.cache import get_cache_path
 from z_outputs.plots import get_plots_path
 from z_outputs.results import get_results_path
 
@@ -37,7 +37,8 @@ def simulation_2_er(location, force=False):
     coupling = 0.1
     all_coupling = np.unique(parameters["coupling"])
     using_coupling = all_coupling[np.argmin(np.abs(all_coupling - coupling))]
-    coupling_phi_index = np.where((parameters["coupling"] == using_coupling) & (parameters["phase"] == using_phi_shift))[0][0]
+    coupling_phi_index = \
+        np.where((parameters["coupling"] == using_coupling) & (parameters["phase"] == using_phi_shift))[0][0]
     print(f"Coupling range: [{np.min(all_coupling)}, {np.max(all_coupling)}]")
     print(f"Using coupling: {using_coupling}")
     print(f"Using coupling_phi_index: {coupling_phi_index}")
@@ -64,7 +65,10 @@ def simulation_2_er(location, force=False):
     )
     ax.legend()
     plt.tight_layout()
-    plt.savefig(get_plots_path() / f"{location.stem}_frequency_{int(coupling * 10)}_{int(using_phi_shift * 10 / np.pi)}.png", dpi=600)
+    plt.savefig(
+        get_plots_path() / f"{location.stem}_frequency_{int(coupling * 10)}_{int(using_phi_shift * 10 / np.pi)}.png",
+        dpi=600
+    )
     plt.show()
     plt.close(fig)
 
@@ -99,7 +103,7 @@ def simulation_2_er(location, force=False):
         fig, ax = plt.subplots(1, 1)
         with_coupling = all_coupling[np.argmin(np.abs(all_coupling - plot_coupling))]
         indexes = parameters["coupling"] == with_coupling
-        sc = ax.plot(parameters["phase"][indexes] / np.pi, er_p[indexes])
+        ax.plot(parameters["phase"][indexes] / np.pi, er_p[indexes])
         ax.set_xlabel("Phase (pi)")
         ax.set_ylabel("ER")
         ax.set_title(f"Simulation 2: {location.stem}; \n {with_coupling:.3f} coupling")
@@ -108,6 +112,7 @@ def simulation_2_er(location, force=False):
         plt.savefig(get_plots_path() / f"{location.stem}_er_{int(with_coupling * 10)}.png", dpi=600)
         plt.show()
         plt.close(fig)
+
 
 if __name__ == '__main__':
     basepath = get_results_path()
