@@ -1,4 +1,3 @@
-from hashlib import sha256
 from pathlib import Path
 from typing import Sequence
 
@@ -6,9 +5,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from src.plot_scripts.common import get_parameters
+from z_outputs.cache import get_cache_path, set_cache_path
 from z_outputs.plots import get_plots_path
 from z_outputs.results import get_results_path
-from z_outputs.cache import get_cache_path
+
 
 def simulation_2_er(location, force=False):
     print(f"Plotting {location.stem}")
@@ -35,7 +35,8 @@ def simulation_2_er(location, force=False):
     coupling = 0.5
     all_coupling = np.unique(parameters["coupling"])
     using_coupling = all_coupling[np.argmin(np.abs(all_coupling - coupling))]
-    coupling_phi_index = np.where((parameters["coupling"] == using_coupling) & (parameters["phase"] == using_phi_shift))[0][0]
+    coupling_phi_index = \
+        np.where((parameters["coupling"] == using_coupling) & (parameters["phase"] == using_phi_shift))[0][0]
     print("Using coupling:", using_coupling)
     print("Using coupling_phi_index:", coupling_phi_index)
 
@@ -54,7 +55,8 @@ def simulation_2_er(location, force=False):
     ax.plot(parameters["f_2"][coupling_phi_index], parameters["t_2"][coupling_phi_index], label="Signal 2")
     ax.set_xlabel("Frequency (THz)")
     ax.set_ylabel("Signal (dBm)")
-    ax.set_title(f"Simulation 2: {location.stem}\n{parameters['coupling'][coupling_phi_index]:.3f} coupling, {parameters['phase'][coupling_phi_index]:.3f} phase")
+    ax.set_title(
+        f"Simulation 2: {location.stem}\n{parameters['coupling'][coupling_phi_index]:.3f} coupling, {parameters['phase'][coupling_phi_index]:.3f} phase")
     ax.legend()
     plt.tight_layout()
     plt.savefig(get_plots_path() / f"{location.stem}_frequency_05.png", dpi=600)
@@ -68,7 +70,7 @@ def simulation_2_er(location, force=False):
         if not isinstance(parameters["t_2"][i], Sequence):
             continue
         er_p[i] = parameters["t_1"][i][freq_index] - parameters["t_2"][i][freq_index]
-    
+
     fig, ax = plt.subplots(1, 1)
     sc = ax.scatter(parameters["phase"], parameters["coupling"], c=er_p)
     cbar = plt.colorbar(sc)
@@ -97,8 +99,12 @@ def simulation_2_er(location, force=False):
 
 if __name__ == '__main__':
     basepath = get_results_path()
-    # slurm_id = 2039351
-    # get_cache_path = lambda: Path(rf"/scratch/slurm-{slurm_id}/cache")
-    # basepath = Path(rf"/scratch/slurm-{slurm_id}")
+    slurm_id = 2041249
+    basepath = Path(rf"/scratch/slurm-{slurm_id}")
+    set_cache_path(Path(rf"/scratch/slurm-{slurm_id}/cache"))
+    print(f"basepath: {basepath}")
+    print(f"get_cache_path: {get_cache_path()}")
+    simulation_2_er(basepath / "simulation_2_868d1548_10110.sqlite")
+    simulation_2_er(basepath / "simulation_2_868d1548_11110.sqlite")
     simulation_2_er(basepath / "simulation_3_868d1548_10110.sqlite")
-    # simulation_2_er(basepath / "simulation_3_868d1548_11110.sqlite")
+    simulation_2_er(basepath / "simulation_3_868d1548_11110.sqlite")

@@ -5,11 +5,30 @@ from pathlib import Path
 from typing import Sequence, Optional, Callable
 
 import numpy as np
+from tqdm import tqdm
 
 from src.compile_data import load_data
+from src.functions.SqliteDeDuplicationDict import SqliteDeDuplicationDict
 from src.functions.__const__ import HASH_LENGTH
-from src.plot_scripts._extract import extract
 from z_outputs.cache import get_cache_path
+
+
+def extract(data: SqliteDeDuplicationDict, *args):
+    results = []
+
+    for v in tqdm(data.values(), ascii=True, desc=f"Extracting {'|'.join(args)!r}"):
+        try:
+            for arg in args:
+                v = v[arg]
+            results.append(v)
+        except KeyError as e:
+            print(e)
+            results.append(np.nan)
+    try:
+        results = np.array(results)
+    except ValueError:
+        pass
+    return results
 
 
 def db_to_watts(db):
