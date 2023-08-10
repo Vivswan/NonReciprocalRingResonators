@@ -7,8 +7,8 @@ from z_outputs.results import get_results_path
 
 if __name__ == '__main__':
     parsed_args = argparse.ArgumentParser(description='Cache data from sqlite file')
-    parsed_args.add_argument('name', type=str, required=True, help='Location of sqlite file')
-    parsed_args.add_argument('parameter', type=str, required=True, help='Parameter to cache')
+    parsed_args.add_argument('-n', '--name', type=str, required=True, help='Location of sqlite file')
+    parsed_args.add_argument('-p', '--parameter', type=str, required=True, help='Parameter to cache')
     parsed_args.add_argument('-l', '--location', type=str, default=None, help='Location of cache file')
     parsed_args.add_argument('-c', '--cache-location', type=str, default=None, help='Location of cache file')
     parsed_args.add_argument('-f', '--force', action='store_true', help='Force overwrite of cache file')
@@ -23,4 +23,5 @@ if __name__ == '__main__':
         location=basepath.joinpath(args.name + '.sqlite'),
         parameter_loc=args.parameter,
         force=args.force,
+        cache_only=True
     )

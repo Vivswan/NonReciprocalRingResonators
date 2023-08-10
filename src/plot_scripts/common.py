@@ -48,19 +48,23 @@ def min_max(value):
     return np.array(results)
 
 
-def get_parameter(location, parameter_loc, force=False):
+def get_parameter(location, parameter_loc, force=False, cache_only=False):
     location = Path(location)
     cache_file = location.stem + "_" + sha256(parameter_loc.encode("utf-8")).hexdigest()[:HASH_LENGTH] + ".pkl"
+    cache_file = get_cache_path().joinpath(cache_file)
 
-    if get_cache_path().joinpath(cache_file).exists() and not force:
-        value = pickle.load(get_cache_path().joinpath(cache_file).open("rb"))
-        print(f"Loaded {parameter_loc!r} from {cache_file!r}")
+    if cache_file.exists() and not force:
+        if cache_only:
+            return None
+        
+        value = pickle.load(cache_file.open("rb"))
+        print(f"Loaded {parameter_loc!r} from {str(cache_file)!r}")
     else:
         print(f"Loading {parameter_loc!r} from {str(location)!r}")
         with load_data(location=location) as data:
             value = extract(data, *parameter_loc.format(i=1).split("|"))
-        pickle.dump(value, get_cache_path().joinpath(cache_file).open("wb"))
-        print(f"Saved {parameter_loc!r} in {cache_file!r}")
+        pickle.dump(value, cache_file.open("wb"))
+        print(f"Saved {parameter_loc!r} in {str(cache_file)!r}")
 
     return value
 
