@@ -7,10 +7,10 @@ from typing import Sequence, Optional, Callable
 import numpy as np
 from tqdm import tqdm
 
+from out.cache import get_cache_path
 from src.compile_data import load_data
 from src.functions.SqliteDeDuplicationDict import SqliteDeDuplicationDict
 from src.functions.__const__ import HASH_LENGTH
-from z_outputs.cache import get_cache_path
 
 
 def extract(data: SqliteDeDuplicationDict, *args):

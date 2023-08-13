@@ -6,9 +6,9 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Union, Dict, Tuple, Optional
 
+from out.results import get_results_path
 from src.functions.__const__ import HASH_LENGTH
 from src.lsf_scripts import get_lsf_scripts_path
-from z_outputs.results import get_results_path
 
 START_SCRIPT = r'''
     addpath("{lsf_scripts_path}");

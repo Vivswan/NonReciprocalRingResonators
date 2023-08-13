@@ -4,9 +4,9 @@ import sys
 from pathlib import Path
 from typing import Union, Dict
 
+from out.results import get_results_path
 from src.functions.param_to_combinations import param_to_combinations
 from src.functions.process_scripts import process_scripts
-from z_outputs.results import get_results_path
 
 
 def run_point(

@@ -1,9 +1,9 @@
 import argparse
 from pathlib import Path
 
+from out.cache import set_cache_path
+from out.results import get_results_path
 from src.plot_scripts.common import get_parameter
-from z_outputs.cache import set_cache_path
-from z_outputs.results import get_results_path
 
 if __name__ == '__main__':
     parsed_args = argparse.ArgumentParser(description='Cache data from sqlite file')

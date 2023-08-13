@@ -4,12 +4,12 @@ import shutil
 from pathlib import Path
 from typing import Optional, Union, Dict
 
+from out.lsf import get_lsf_path
+from out.results import get_results_path
 from src.compile_data import get_compile_data_path
 from src.functions.param_to_combinations import param_to_combinations
 from src.functions.process_scripts import process_scripts
 from src.lsf_scripts import get_lsf_scripts_path
-from z_outputs.lsf import get_lsf_path
-from z_outputs.results import get_results_path
 
 
 def create_lsf_script(

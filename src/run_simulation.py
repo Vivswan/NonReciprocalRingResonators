@@ -9,10 +9,10 @@ from typing import Union, Dict, List, Optional
 
 import numpy as np
 
+from out import get_output_path
 from src.functions.__const__ import HASH_LENGTH
 from src.functions.lsf_script import create_lsf_script_sweep
 from src.functions.run_sim import run_sweep
-from z_outputs import get_output_path
 
 SETUP_SCRIPT = r'''
     num_resonators = {num_resonators};
@@ -192,7 +192,8 @@ def _main(*args, **kwargs):
 
     prefix_name = f"simulation_"
     if parsed_args.ename is not None:
-        prefix_name = f"simulation_{parsed_args.ename}"
+        prefix_name = prefix_name + f"{parsed_args.ename}"
+
     script_name = (
         f'{prefix_name}'
         f'_{hash_name}'

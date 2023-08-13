@@ -4,11 +4,10 @@ __pycache__/
 *$py.class
 
 failed.txt
-z_outputs/*
-z_outputs/**/*
-!z_outputs/__init__.py
-!z_outputs/**/__init__.py
-!z_outputs/lsf/running_to_run.sh
+out/*
+out/**/*
+!__init__.py
+!running_to_run.sh
 
 .idea
 .idea/**

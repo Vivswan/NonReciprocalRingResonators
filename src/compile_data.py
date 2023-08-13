@@ -12,8 +12,8 @@ import numpy as np
 import scipy
 from tqdm import tqdm
 
+from out.results import get_results_path
 from src.functions.SqliteDeDuplicationDict import SqliteDeDuplicationDict
-from z_outputs.results import get_results_path
 
 
 def get_compile_data_path():
