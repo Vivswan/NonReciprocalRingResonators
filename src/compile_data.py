@@ -173,7 +173,7 @@ def _main():
     args.add_argument("-o", "--override", action="store_true", help="Override existing data")
     args.add_argument("-r", "--remove", action="store_true", help="Delete mat files after compilation")
     args.add_argument("-c", "--with-console-log", action="store_true", help="Print log to console")
-    args.add_argument("-p", "--no-progress_bar", action="store_false", help="Disable progress bar")
+    args.add_argument("-p", "--no-progress-bar", action="store_false", help="Disable progress bar")
     args.add_argument("-m", "--no-multiprocessing", action="store_false", help="Disable multiprocessing")
     args = args.parse_args()
 
