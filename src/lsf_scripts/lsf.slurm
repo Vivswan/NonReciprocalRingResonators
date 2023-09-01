@@ -98,7 +98,10 @@ done
 
 all_files=$(ls ./*."${SLURM_JOB_ID}".running.lsf);
 for file in $all_files; do
-  file_without_num=${file%%.*};
+  file_without_num=$file;
+  file_without_num=${file_without_num%.*};
+  file_without_num=${file_without_num%.*};
+  file_without_num=${file_without_num%.*};
   new_file=${file_without_num}.run.lsf;
   echo "$file -> $new_file";
   mv "$file" "$new_file";
