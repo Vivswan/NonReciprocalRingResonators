@@ -6,8 +6,8 @@ __pycache__/
 failed.txt
 out/*
 out/**/*
-!__init__.py
-!running_to_run.sh
+!out/**/__init__.py
+!out/lsf/running_to_run.sh
 
 .idea
 .idea/**
