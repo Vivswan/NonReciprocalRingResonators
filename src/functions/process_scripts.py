@@ -66,7 +66,7 @@ END_SCRIPT = r'''
 def get_relative_path(path1: Union[str, Path], path2: Union[str, Path]) -> str:
     path1 = Path(path1).expanduser().absolute()
     path2 = Path(path2).expanduser().absolute()
-    common_path = Path(os.path.commonprefix([path1, path2]))
+    common_path = Path(os.path.commonpath([path1, path2]))
     path1_to_common = path1.relative_to(common_path)
     path2_to_common = path2.relative_to(common_path)
     path1_to_common = Path("/".join([".."] * len(path1_to_common.parts)))

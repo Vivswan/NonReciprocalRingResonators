@@ -1,0 +1,80 @@
+cff-version: 1.2.0
+title: "Integrated non-reciprocal magneto-optics with ultra-high endurance for photonic in-memory computing"
+message: 'If you use this software, please cite it as below.'
+preferred-citation:
+  type: article
+  authors:
+  - family-names: Pintus
+    given-names: Paolo
+  - family-names: Dumont
+    given-names: Mario
+  - family-names: Shah
+    given-names: Vivswan
+  - family-names: Murai
+    given-names: Toshiya
+  - family-names: Shoji
+    given-names: Yuya
+  - family-names: Huang
+    given-names: Duanni
+  - family-names: Moody
+    given-names: Galan
+  - family-names: Bowers
+    given-names: John E.
+  - family-names: Youngblood
+    given-names: Nathan
+  doi: "10.1038/s41566-024-01549-1"
+  journal: "Nature Photonics"
+  title: "Integrated non-reciprocal magneto-optics with ultra-high endurance for photonic in-memory computing"
+  year: 2024
+authors:
+  - family-names: Pintus
+    given-names: Paolo
+  - family-names: Dumont
+    given-names: Mario
+  - family-names: Shah
+    given-names: Vivswan
+  - family-names: Murai
+    given-names: Toshiya
+  - family-names: Shoji
+    given-names: Yuya
+  - family-names: Huang
+    given-names: Duanni
+  - family-names: Moody
+    given-names: Galan
+  - family-names: Bowers
+    given-names: John E.
+  - family-names: Youngblood
+    given-names: Nathan
+identifiers:
+  - type: doi
+    value: 10.1038/s41566-024-01549-1
+    description: >-
+      The concept DOI for the collection containing
+      all versions of the Citation File Format.
+repository-code: 'https://github.com/Vivswan/NonReciprocalRingResonators'
+url: "https://www.nature.com/articles/s41566-024-01549-1"
+abstract: >-
+  Processing information in the optical domain promises advantages in both speed
+  and energy efficiency over existing digital hardware for a variety of emerging
+  applications in artificial intelligence and machine learning. A typical
+  approach to photonic processing is to multiply a rapidly changing 
+  optical input vector with a matrix of fixed optical weights. However, 
+  encoding these weights on-chip using an array of photonic memory cells 
+  is currently limited by a wide range of material- and device-level issues, such 
+  as the programming speed, extinction ratio and endurance, among others. Here we 
+  propose a new approach to encoding optical weights for in-memory photonic computing 
+  using magneto-optic memory cells comprising heterogeneously integrated 
+  cerium-substituted yttrium iron garnet (Ce:YIG) on silicon micro-ring resonators. 
+  We show that leveraging the non-reciprocal phase shift in such magneto-optic materials 
+  offers several key advantages over existing architectures, providing a fast (1 ns), 
+  efficient (143 fJ per bit) and robust (2.4 billion programming cycles) platform for 
+  on-chip optical processing.
+keywords:
+  - photonics
+  - analog-computing
+  - magneto-optics
+  - photonic in-memory computing
+  - artificial intelligence
+  - optical weights
+  - magneto-optic materials
+license: GPL-3.0
